@@ -8,10 +8,10 @@ function Navbar() {
     const appDispatch = useContext(DispatchContext);
 
     const handleLogout = () => {
-        if (sessionStorage.getItem("loggedIn") !== "true") {
-            console.log(sessionStorage.getItem("loggedIn"));
-            return;
-        }
+        // if (sessionStorage.getItem("loggedIn") !== "true") {
+        //     console.log(sessionStorage.getItem("loggedIn"));
+        //     return;
+        // }
         axios.post("http://localhost:8080/logout").then((res) => {
             if (res.status === 200) {
                 console.log(res.status);
@@ -21,16 +21,19 @@ function Navbar() {
         });
     };
 
+    const handleNavigation = () => {
+        // console.log(route);
+        return navigate("/usermanagement");
+    };
+
     const navigate = useNavigate();
 
     return (
         <nav className="navbar">
             <div className="navbar-title">Task Management System</div>
             <ul className="navbar-nav">
-                <li className="nav-item">
-                    <Navigate to="/usermanagement" className="nav-item">
-                        User Management
-                    </Navigate>
+                <li className="nav-item" onClick={handleNavigation}>
+                    <p className="nav-item">User Management</p>
                 </li>
                 <li className="nav-item">Profile</li>
                 <li className="nav-item" onClick={handleLogout}>

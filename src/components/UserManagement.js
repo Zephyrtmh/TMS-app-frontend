@@ -13,9 +13,18 @@ function UserManagement() {
         //get users
         axios.get("http://localhost:8080/user/all", { withCredentials: true }).then((res) => {
             console.log(res);
-            setUsers(res.body);
+            setUsers(res.data);
+
+            console.log(users);
         });
-    });
+    }, []);
+
+    const handleNavigateToEditUser = (user) => {
+        navigate(`/user/${user.username}`);
+    };
+
+    const navigate = useNavigate();
+
     return (
         <>
             {appState.loggedIn && <p>{appState.username + appState.active + appState.userGroup}</p>}
@@ -31,24 +40,17 @@ function UserManagement() {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>JohnDoe</td>
-                        <td>johndoe@example.com</td>
-                        <td>Yes</td>
-                        <td>Admin</td>
-                        <td>
-                            <button>Edit</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>JaneSmith</td>
-                        <td>janesmith@example.com</td>
-                        <td>No</td>
-                        <td>User</td>
-                        <td>
-                            <button>Edit</button>
-                        </td>
-                    </tr>
+                    {users.map((user) => (
+                        <tr key={user.username}>
+                            <td>{user.username}</td>
+                            <td>{user.email}</td>
+                            <td>{user.active}</td>
+                            <td>{user.userGroupName}</td>
+                            <td>
+                                <button onClick={() => handleNavigateToEditUser(user)}>Edit</button>
+                            </td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
 

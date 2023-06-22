@@ -34,7 +34,7 @@ function LoginPage() {
             password: password,
         };
         axios
-            .post("http://localhost:8080/login", loginData)
+            .post("http://localhost:8080/login", loginData, { withCredentials: true })
             .then((res) => {
                 console.log(res.data);
                 if (res.status === 200) {

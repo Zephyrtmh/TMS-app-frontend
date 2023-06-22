@@ -4,7 +4,8 @@ import Navigation from "./Navigation";
 import LoginPage from "./LoginPage";
 import LandingPage from "./LandingPage";
 import UserManagement from "./UserManagement";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import EditUser from "./EditUser";
+import { BrowserRouter, Route, Router, Routes } from "react-router-dom";
 import { authUser } from "../utils/authenticate";
 
 import AppStateContext from "../AppStateContext";
@@ -56,10 +57,15 @@ function App() {
                     <BrowserRouter>
                         <Navigation />
                         <Routes>
-                            <Route path="/login" element={<LoginPage />} />
-                            <Route path="/home" element={(authUser(state, <LandingPage />), ["admin"])} />
-                            <Route path="/usermanagement" element={authUser(state, <UserManagement />, ["admin"])} />
                             <Route path="*" element={authUser(state, <LandingPage />)} replace />
+
+                            {/* <Route exact path="/home" element={(authUser(state, <LandingPage />), ["admin"])} /> */}
+                            <Route exact path="/home" element={authUser(state, <LandingPage />, [])} />
+                            <Route exact path="/usermanagement" element={authUser(state, <UserManagement />, ["admin"])} />
+                            <Route exact path="/user/:username" element={<EditUser />} />
+                            {/* <Route exact path="/usermanagement" element={<UserManagement />} /> */}
+                            <Route exact path="/" element={authUser(state, <LandingPage />)} />
+                            <Route exact path="/login" element={<LoginPage />} />
                         </Routes>
                     </BrowserRouter>
                 </DispatchContext.Provider>
