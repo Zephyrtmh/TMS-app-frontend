@@ -5,6 +5,7 @@ import LoginPage from "./LoginPage";
 import LandingPage from "./LandingPage";
 import UserManagement from "./UserManagement";
 import EditUser from "./EditUser";
+import AddUser from "./AddUser";
 import { BrowserRouter, Route, Router, Routes } from "react-router-dom";
 import { authUser } from "../utils/authenticate";
 
@@ -30,6 +31,14 @@ function App() {
     //     // appState.loggedIn = localStorage.loggedIn;
     // }, [appState.loggedIn]);
 
+    useEffect(() => {
+        const storedState = localStorage.getItem("appState");
+        if (storedState) {
+            const parsedState = JSON.parse(storedState);
+            dispatch({ type: "login", data: parsedState });
+        }
+    }, []);
+
     function appReducer(draft, action) {
         switch (action.type) {
             case "login":
@@ -39,9 +48,11 @@ function App() {
                 draft.username = data.username;
                 draft.active = data.active;
                 draft.userGroup = data.userGroup;
+                localStorage.setItem("appState", JSON.stringify(draft));
                 return;
             case "logout":
                 draft.loggedIn = false;
+                localStorage.removeItem("appState");
                 return;
             case "user":
                 return;
@@ -62,7 +73,9 @@ function App() {
                             {/* <Route exact path="/home" element={(authUser(state, <LandingPage />), ["admin"])} /> */}
                             <Route exact path="/home" element={authUser(state, <LandingPage />, [])} />
                             <Route exact path="/usermanagement" element={authUser(state, <UserManagement />, ["admin"])} />
+                            {/* <Route exact path="/usermanagement" element={<UserManagement />} /> */}
                             <Route exact path="/user/:username" element={<EditUser />} />
+                            <Route exact path="/user/create" element={<AddUser />} />
                             {/* <Route exact path="/usermanagement" element={<UserManagement />} /> */}
                             <Route exact path="/" element={authUser(state, <LandingPage />)} />
                             <Route exact path="/login" element={<LoginPage />} />

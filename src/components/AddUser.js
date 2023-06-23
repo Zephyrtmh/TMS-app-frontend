@@ -3,32 +3,22 @@ import axios from "axios";
 
 import { useNavigate, useParams } from "react-router-dom";
 
-function EditUser(prop) {
+function AddUser() {
     const [userGroups, setUserGroups] = useState([]);
     const [userDetails, setUserDetails] = useState([]);
 
     //user form fields
+    const [username, setUsername] = useState("");
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
-    const [userAccStatus, setUserAccStatus] = useState("");
+    const [userAccStatus, setUserAccStatus] = useState("active");
     const [userGroup, setUserGroup] = useState("");
     const [passwordIsChecked, setPasswordIsChecked] = useState(false);
 
     useEffect(() => {
         axios.get("http://localhost:8080/group/all", { withCredentials: true }).then((res) => {
-            res.data.push({ userGroupName: "" });
             setUserGroups(res.data);
             setUserGroup(res.data[0].userGroupName);
-        });
-
-        axios.post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true }).then((res) => {
-            // setUserDetails(res.data);
-            setUserEmail(res.data.email);
-            setUserAccStatus(res.data.active);
-            if (res.data.active === "") {
-                setUserAccStatus("active");
-            }
-            setUserGroup(res.data.userGroupName);
         });
     }, []);
 
@@ -38,6 +28,10 @@ function EditUser(prop) {
 
     const handleEmailChange = (e) => {
         setUserEmail(e.target.value);
+    };
+
+    const handleUsernameChange = (e) => {
+        setUsername(e.target.value);
     };
 
     const handlePasswordChange = (e) => {
@@ -52,24 +46,19 @@ function EditUser(prop) {
         setUserGroup(e.target.value);
     };
 
-    const handlePasswordCheckBox = (e) => {
-        console.log(!passwordIsChecked);
-        setPasswordIsChecked(!passwordIsChecked);
-    };
-
     const handleEditFormSubmit = (e) => {
         e.preventDefault();
         const data = {
             username: username,
             password: userPassword,
-            changePassword: passwordIsChecked,
             email: userEmail,
             active: userAccStatus,
             userGroup: userGroup,
         };
+        console.log(data);
 
         axios
-            .put(`http://localhost:8080/user/${username}`, data, { withCredentials: true })
+            .post(`http://localhost:8080/user/create`, data, { withCredentials: true })
             .then((res) => {
                 if (res.data.success) {
                     console.log(res.success);
@@ -84,15 +73,13 @@ function EditUser(prop) {
 
     const navigate = useNavigate();
 
-    const { username } = useParams();
-
     return (
         <div>
+            <h1>Add User</h1>
             <form>
-                <h1>Edit User</h1>
                 <div>
-                    <label htmlFor="username">Username:</label>
-                    <input type="text" id="username" readOnly value={username} />
+                    <label htmlFor="username">Username*:</label>
+                    <input type="text" id="username" value={username} onChange={handleUsernameChange} />
                 </div>
 
                 <div>
@@ -101,22 +88,20 @@ function EditUser(prop) {
                 </div>
 
                 <div>
-                    <label htmlFor="password">Password:</label>
+                    <label htmlFor="password">Password*:</label>
                     <input type="password" id="password" value={userPassword} onChange={handlePasswordChange} />
-                    <input type="checkbox" checked={passwordIsChecked} onChange={handlePasswordCheckBox} />
-                    <div>Change password</div>
                 </div>
 
                 <div>
-                    <label htmlFor="status">Account Status:</label>
-                    <select id="status" value={userAccStatus} onChange={handleAccStatusChange} required>
+                    <label htmlFor="status">Account Status*:</label>
+                    <select id="status" value={userAccStatus} onChange={handleAccStatusChange}>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
 
                 <div>
-                    <label htmlFor="groups">Groups:</label>
+                    <label htmlFor="groups">Groups*:</label>
                     <select id="groups" value={userGroup} onChange={handleUserGroupChange}>
                         {userGroups.map((userGroup, index) => (
                             <option key={index} value={userGroup.userGroupName}>
@@ -134,4 +119,4 @@ function EditUser(prop) {
     );
 }
 
-export default EditUser;
+export default AddUser;
