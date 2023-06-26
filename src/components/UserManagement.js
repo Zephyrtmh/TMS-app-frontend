@@ -40,17 +40,23 @@ function UserManagement() {
         axios
             .post("http://localhost:8080/group/create", { userGroup: userGroupToAdd }, { withCredentials: true })
             .then((res) => {
+                console.log("this is the res");
                 console.log(res);
-                if (res.response.data.status === 409) {
-                    console.log(res.data.success + res.data.reason);
+                if (res.data) {
+                    if (res.data.success === false) {
+                        console.log(res.data.reason);
+                    } else {
+                        const newUserGroups = userGroups.concat({ userGroupName: userGroupToAdd });
+                        console.log(newUserGroups);
+                        setUserGroups(newUserGroups);
+                    }
                 }
             })
             .catch((err) => {
                 console.log(err.response.data);
-                console.log(err.statusCode);
-                console.log(err.reason);
+                console.log(err.response.status);
             });
-        // setUserGroups(userGroups.push(userGroupToAdd));
+        setUserGroupToAdd("");
     };
 
     const navigate = useNavigate();

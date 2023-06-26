@@ -23,7 +23,7 @@ function AddUser() {
     }, []);
 
     const handleCancelButton = () => {
-        // navigate("/usermanagement");
+        navigate("/usermanagement");
     };
 
     const handleEmailChange = (e) => {
@@ -63,12 +63,21 @@ function AddUser() {
                 if (res.data.success) {
                     console.log(res.success);
                     //redirect to user management
-                    navigate("/usermanagement");
+                    // navigate("/usermanagement");
+                    clearFields();
                 }
             })
             .catch((err) => {
                 console.log(err);
             });
+    };
+
+    const clearFields = () => {
+        setUserGroup("");
+        setUserAccStatus("");
+        setUserPassword("");
+        setUserEmail("");
+        setUsername("");
     };
 
     const navigate = useNavigate();

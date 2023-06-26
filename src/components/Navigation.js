@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import "../styles/navbar.css";
 import axios from "axios";
 import { useNavigate, Link, Navigate } from "react-router-dom";
@@ -9,6 +9,10 @@ function Navbar() {
     const appDispatch = useContext(DispatchContext);
     const appState = useContext(AppStateContext);
 
+    useEffect(() => {
+        console.log("usergroup: " + appState.userGroup);
+    }, [appState]);
+
     const handleLogout = () => {
         // if (sessionStorage.getItem("loggedIn") !== "true") {
         //     console.log(sessionStorage.getItem("loggedIn"));
@@ -18,6 +22,8 @@ function Navbar() {
             if (res.status === 200) {
                 console.log(res.status);
                 appDispatch({ type: "logout" });
+                return navigate("/login");
+            } else if (res.status !== 200) {
                 return navigate("/login");
             }
         });
@@ -38,15 +44,20 @@ function Navbar() {
         <nav className="navbar">
             <div className="navbar-title">Task Management System</div>
             <ul className="navbar-nav">
-                <li className="nav-item" onClick={handleNavigation}>
-                    User Management
-                </li>
+                {appState.userGroup === "admin" && (
+                    <li className="nav-item" onClick={handleNavigation}>
+                        User Management
+                    </li>
+                )}
                 <li className="nav-item" onClick={handleNavigateToEditUser}>
                     Profile
                 </li>
-                <li className="nav-item" onClick={handleLogout}>
-                    Logout
-                </li>
+                {appState.loggedIn && (
+                    <li className="nav-item" onClick={handleLogout}>
+                        Logout
+                    </li>
+                )}
+                {!appState.loggedIn && <li className="nav-item">Login</li>}
             </ul>
         </nav>
     );

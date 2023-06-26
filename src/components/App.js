@@ -3,14 +3,15 @@ import { useImmerReducer } from "use-immer";
 import Navigation from "./Navigation";
 import LoginPage from "./LoginPage";
 import LandingPage from "./LandingPage";
-import UserManagement from "./UserManagement";
+const AsyncUserManagment = React.lazy(() => import("./UserManagement"));
 import EditUser from "./EditUser";
 import AddUser from "./AddUser";
-import { BrowserRouter, Route, Router, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Router, Routes } from "react-router-dom";
 import { authUser } from "../utils/authenticate";
 
 import AppStateContext from "../AppStateContext";
 import DispatchContext from "../DispatchContext";
+import axios from "axios";
 
 function App() {
     const appState = {
@@ -19,6 +20,8 @@ function App() {
         active: "",
         userGroup: "",
     };
+
+    const [isLoading, setIsLoading] = useState(true);
 
     // useEffect(() => {
     //     localStorage.setItem("username", appState.username);
@@ -32,10 +35,31 @@ function App() {
     // }, [appState.loggedIn]);
 
     useEffect(() => {
-        const storedState = localStorage.getItem("appState");
-        if (storedState) {
-            const parsedState = JSON.parse(storedState);
-            dispatch({ type: "login", data: parsedState });
+        // const storedState = localStorage.getItem("appState");
+        // if (storedState) {
+        //     const parsedState = JSON.parse(storedState);
+        //     dispatch({ type: "login", data: parsedState });
+        // }
+        const verifyUser = async () => {
+            setIsLoading(true);
+            console.log("im about to verify user");
+            try {
+                var verified = await axios.post("http://localhost:8080/verifyuser", {}, { withCredentials: true });
+            } catch (err) {
+                if (err.response.status === 401) {
+                    return;
+                }
+            }
+
+            dispatch({ type: "login", data: verified.data.user });
+            setIsLoading(false);
+        };
+        try {
+            verifyUser();
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
@@ -48,11 +72,12 @@ function App() {
                 draft.username = data.username;
                 draft.active = data.active;
                 draft.userGroup = data.userGroup;
-                localStorage.setItem("appState", JSON.stringify(draft));
                 return;
             case "logout":
                 draft.loggedIn = false;
-                localStorage.removeItem("appState");
+                draft.username = "";
+                draft.active = "";
+                draft.userGroup = "";
                 return;
             case "user":
                 return;
@@ -60,6 +85,10 @@ function App() {
     }
 
     const [state, dispatch] = useImmerReducer(appReducer, appState);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <>
@@ -69,7 +98,6 @@ function App() {
                         <Navigation />
                         <Routes>
                             <Route path="*" element={authUser(state, <LandingPage />)} replace />
-
                             {/* <Route exact path="/home" element={(authUser(state, <LandingPage />), ["admin"])} /> */}
                             <Route exact path="/home" element={authUser(state, <LandingPage />, [])} />
                             <Route exact path="/usermanagement" element={authUser(state, <UserManagement />, ["admin"])} />

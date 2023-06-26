@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 
 import { useNavigate, useParams } from "react-router-dom";
+import AppStateContext from "../AppStateContext";
 
 function EditUser(prop) {
     const [userGroups, setUserGroups] = useState([]);
@@ -21,15 +22,24 @@ function EditUser(prop) {
             setUserGroup(res.data[0].userGroupName);
         });
 
-        axios.post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true }).then((res) => {
-            // setUserDetails(res.data);
-            setUserEmail(res.data.email);
-            setUserAccStatus(res.data.active);
-            if (res.data.active === "") {
-                setUserAccStatus("active");
-            }
-            setUserGroup(res.data.userGroupName);
-        });
+        axios
+            .post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true })
+            .then((res) => {
+                // setUserDetails(res.data);
+                setUserEmail(res.data.email);
+                setUserAccStatus(res.data.active);
+                if (res.data.active === "") {
+                    setUserAccStatus("active");
+                }
+                setUserGroup(res.data.userGroupName);
+            })
+            .catch((err) => {
+                if (err.response.status === 401) {
+                    navigate("/login");
+                }
+            });
+        console.log("appstate" + appState.username + "other one" + username);
+        console.log(appState.username === username);
     }, []);
 
     const handleCancelButton = () => {
@@ -86,6 +96,8 @@ function EditUser(prop) {
 
     const { username } = useParams();
 
+    const appState = useContext(AppStateContext);
+
     return (
         <div>
             <form>
@@ -102,14 +114,14 @@ function EditUser(prop) {
 
                 <div>
                     <label htmlFor="password">Password:</label>
-                    <input type="password" id="password" value={userPassword} onChange={handlePasswordChange} />
+                    <input type="password" id="password" value={userPassword} readOnly={!passwordIsChecked} onChange={handlePasswordChange} />
                     <input type="checkbox" checked={passwordIsChecked} onChange={handlePasswordCheckBox} />
                     <div>Change password</div>
                 </div>
 
                 <div>
                     <label htmlFor="status">Account Status:</label>
-                    <select id="status" value={userAccStatus} onChange={handleAccStatusChange} required>
+                    <select id="status" value={userAccStatus} onChange={handleAccStatusChange} disabled={appState.username === username ? true : false} required>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>

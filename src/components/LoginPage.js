@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import "../styles/loginpage.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -21,6 +21,10 @@ function LoginPage() {
         setPassword(e.target.value);
     };
 
+    useEffect(() => {
+        console.log("this is loaded");
+    }, []);
+
     const handleSubmit = (e) => {
         e.preventDefault();
         // Handle login logic here
@@ -40,6 +44,8 @@ function LoginPage() {
                 if (res.status === 200) {
                     if (res.data.success) {
                         const data = res.data;
+                        console.log("data");
+                        console.log(data);
                         appDispatch({ type: "login", data: { username: data.username, active: data.active, userGroup: data.userGroup } });
                         // localStorage.setItem("username", data.username);
                         // localStorage.setItem("active", data.active);
@@ -70,11 +76,11 @@ function LoginPage() {
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Username:</label>
-                    <input type="text" value={username} onChange={handleUsernameChange} />
+                    <input type="text" value={username} onChange={handleUsernameChange} required />
                 </div>
                 <div>
                     <label>Password:</label>
-                    <input type="password" value={password} onChange={handlePasswordChange} />
+                    <input type="password" value={password} onChange={handlePasswordChange} required />
                 </div>
                 {showError && <p style={{ color: "red" }}>{errorMessage}</p>}
                 {showSuccess && <p style={{ color: "green" }}>Successfully logged in</p>}
