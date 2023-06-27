@@ -12,6 +12,13 @@ function UserManagement() {
     const [userGroupToAdd, setUserGroupToAdd] = useState([]);
 
     useEffect(() => {
+        async function syncBackend() {
+            var verified = await axios.post("http://localhost:8080/verifyuser", {}, { withCredentials: true });
+        }
+
+        syncBackend() === true ? navigate("/login") : navigate("/usermanagement");
+
+        // return navigate("/login");
         //get users
         axios.get("http://localhost:8080/user/all", { withCredentials: true }).then((res) => {
             setUsers(res.data);
@@ -102,7 +109,11 @@ function UserManagement() {
                             <td>{user.username}</td>
                             <td>{user.email}</td>
                             <td>{user.active}</td>
-                            <td>{user.userGroupName}</td>
+                            <td>
+                                {user.userGroups.map((userGroup) => {
+                                    return <p>{userGroup}</p>;
+                                })}
+                            </td>
                             <td>
                                 <button onClick={() => handleNavigateToEditUser(user)}>Edit</button>
                             </td>

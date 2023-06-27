@@ -2,13 +2,13 @@ import LoginPage from "../components/LoginPage";
 import React from "react";
 import axios from "axios";
 
-export async function authUser(appState, component, allowed = []) {
+export function authUser(appState, component, allowed = []) {
     //sync with backend
-    try {
-        const user = await axios.post("http://localhost:8080/verifyuser", {}, { withCredentials: true });
-    } catch (err) {
-        console.log(err);
-    }
+    // try {
+    //     const user = await axios.post("http://localhost:8080/verifyuser", {}, { withCredentials: true });
+    // } catch (err) {
+    //     console.log(err);
+    // }
 
     if (allowed.length === 0) {
         if (appState.loggedIn == true && appState.active === "active") {
@@ -16,7 +16,7 @@ export async function authUser(appState, component, allowed = []) {
         }
     }
     console.log(appState.userGroup + appState.loggedIn);
-    if (allowed.includes(appState.userGroup) && appState.loggedIn == true && appState.active === "active") {
+    if (allowed.some((allowed) => appState.userGroups.includes(allowed)) && appState.loggedIn == true && appState.active === "active") {
         // axios.post();
 
         return component;

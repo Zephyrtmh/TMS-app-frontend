@@ -45,8 +45,8 @@ function LoginPage() {
                     if (res.data.success) {
                         const data = res.data;
                         console.log("data");
-                        console.log(data);
-                        appDispatch({ type: "login", data: { username: data.username, active: data.active, userGroup: data.userGroup } });
+                        console.log(data.userGroups);
+                        appDispatch({ type: "login", data: { username: data.username, active: data.active, userGroups: data.userGroups } });
                         // localStorage.setItem("username", data.username);
                         // localStorage.setItem("active", data.active);
                         // localStorage.setItem("userGroup", data.userGroup);

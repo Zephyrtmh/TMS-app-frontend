@@ -3,7 +3,7 @@ import { useImmerReducer } from "use-immer";
 import Navigation from "./Navigation";
 import LoginPage from "./LoginPage";
 import LandingPage from "./LandingPage";
-const AsyncUserManagment = React.lazy(() => import("./UserManagement"));
+import UserManagement from "./UserManagement";
 import EditUser from "./EditUser";
 import AddUser from "./AddUser";
 import { BrowserRouter, Navigate, Route, Router, Routes } from "react-router-dom";
@@ -18,41 +18,24 @@ function App() {
         loggedIn: false,
         username: "",
         active: "",
-        userGroup: "",
+        userGroups: [],
     };
 
     const [isLoading, setIsLoading] = useState(true);
 
-    // useEffect(() => {
-    //     localStorage.setItem("username", appState.username);
-    //     localStorage.setItem("active", appState.active);
-    //     localStorage.setItem("userGroup", appState.userGroup);
-    //     localStorage.setItem("loggedIn", appState.loggedIn);
-    //     // appState.username = localStorage.username;
-    //     // appState.active = localStorage.active;
-    //     // appState.userGroup = localStorage.userGroup;
-    //     // appState.loggedIn = localStorage.loggedIn;
-    // }, [appState.loggedIn]);
-
     useEffect(() => {
-        // const storedState = localStorage.getItem("appState");
-        // if (storedState) {
-        //     const parsedState = JSON.parse(storedState);
-        //     dispatch({ type: "login", data: parsedState });
-        // }
         const verifyUser = async () => {
-            setIsLoading(true);
-            console.log("im about to verify user");
-            try {
-                var verified = await axios.post("http://localhost:8080/verifyuser", {}, { withCredentials: true });
-            } catch (err) {
-                if (err.response.status === 401) {
-                    return;
-                }
-            }
-
-            dispatch({ type: "login", data: verified.data.user });
-            setIsLoading(false);
+            // setIsLoading(true);
+            // console.log("im about to verify user");
+            // try {
+            //     var verified = await axios.post("http://localhost:8080/verifyuser", {}, { withCredentials: true });
+            // } catch (err) {
+            //     if (err.response.status === 401) {
+            //         return;
+            //     }
+            // }
+            // dispatch({ type: "login", data: verified.data.user });
+            // setIsLoading(false);
         };
         try {
             verifyUser();
@@ -67,11 +50,16 @@ function App() {
         switch (action.type) {
             case "login":
                 draft.loggedIn = true;
-                const data = action.data;
-                console.log("data: " + data.username + data.active + data.userGroup);
+                var data = action.data;
+                console.log("data");
+                console.log(data.userGroups);
                 draft.username = data.username;
                 draft.active = data.active;
-                draft.userGroup = data.userGroup;
+                console.log("this is userGroups: ");
+                data.userGroups.forEach((userGroup) => {
+                    console.log(userGroup);
+                    draft.userGroups.push(userGroup);
+                });
                 return;
             case "logout":
                 draft.loggedIn = false;

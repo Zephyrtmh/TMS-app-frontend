@@ -10,7 +10,8 @@ function Navbar() {
     const appState = useContext(AppStateContext);
 
     useEffect(() => {
-        console.log("usergroup: " + appState.userGroup);
+        console.log("usergroup: " + appState.userGroups);
+        console.log(appState);
     }, [appState]);
 
     const handleLogout = () => {
@@ -34,7 +35,6 @@ function Navbar() {
     };
 
     const handleNavigation = () => {
-        // console.log(route);
         return navigate("/usermanagement");
     };
 
@@ -44,7 +44,7 @@ function Navbar() {
         <nav className="navbar">
             <div className="navbar-title">Task Management System</div>
             <ul className="navbar-nav">
-                {appState.userGroup === "admin" && (
+                {appState.userGroups.includes("admin") && (
                     <li className="nav-item" onClick={handleNavigation}>
                         User Management
                     </li>

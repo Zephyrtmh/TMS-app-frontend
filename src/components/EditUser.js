@@ -5,21 +5,21 @@ import { useNavigate, useParams } from "react-router-dom";
 import AppStateContext from "../AppStateContext";
 
 function EditUser(prop) {
-    const [userGroups, setUserGroups] = useState([]);
+    const [userGroupsAvailable, setUserGroupsAvailable] = useState([]);
     const [userDetails, setUserDetails] = useState([]);
 
     //user form fields
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
     const [userAccStatus, setUserAccStatus] = useState("");
-    const [userGroup, setUserGroup] = useState("");
+    const [userGroupForUser, setUserGroupForUser] = useState([]);
     const [passwordIsChecked, setPasswordIsChecked] = useState(false);
 
     useEffect(() => {
         axios.get("http://localhost:8080/group/all", { withCredentials: true }).then((res) => {
+            console.log(res.data);
             res.data.push({ userGroupName: "" });
-            setUserGroups(res.data);
-            setUserGroup(res.data[0].userGroupName);
+            setUserGroupsAvailable(res.data);
         });
 
         axios
@@ -31,7 +31,10 @@ function EditUser(prop) {
                 if (res.data.active === "") {
                     setUserAccStatus("active");
                 }
-                setUserGroup(res.data.userGroupName);
+                console.log("userGroups");
+                console.log(res.data);
+                console.log(res.data.userGroups);
+                setUserGroupForUser(res.data.userGroups);
             })
             .catch((err) => {
                 if (err.response.status === 401) {
@@ -59,7 +62,7 @@ function EditUser(prop) {
     };
 
     const handleUserGroupChange = (e) => {
-        setUserGroup(e.target.value);
+        setUserGroupForUser(e.target.value);
     };
 
     const handlePasswordCheckBox = (e) => {
@@ -129,8 +132,13 @@ function EditUser(prop) {
 
                 <div>
                     <label htmlFor="groups">Groups:</label>
-                    <select id="groups" value={userGroup} onChange={handleUserGroupChange}>
-                        {userGroups.map((userGroup, index) => (
+                    <div>
+                        {userGroupForUser.map((group, index) => {
+                            return <p key={index}>{group}</p>;
+                        })}
+                    </div>
+                    <select id="groups" value={userGroupsAvailable} onChange={handleUserGroupChange}>
+                        {userGroupsAvailable.map((userGroup, index) => (
                             <option key={index} value={userGroup.userGroupName}>
                                 {userGroup.userGroupName}
                             </option>
