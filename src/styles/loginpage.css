@@ -23,21 +23,40 @@
 .login-container input {
     padding: 8px;
     margin-bottom: 16px;
-    width: 200px;
+    width: 250px;
+    background-color: #CCDDD3;
+    outline: none;
+    border:none;
+}
+
+.login-container input:focus {
+    box-shadow: 3px 3px 0px #B48B7D;
+    outline-color: #B48B7D;
+    background-color: #DFEFCA;
 }
 
 .login-container button {
     align-self: center;
-    width: 70%;
+    width: 60%;
     padding: 10px 20px;
-    background-color: rgb(219, 219, 219);
-    color: black;
+    /* background-color: rgb(125, 218, 255); */
+    background-color: #FFF9A5;
+    color: #B48B7D;
+    font-weight: bold;
     border: none;
     cursor: pointer;
     margin-top: 15px;
-    transition: background-color 0.3s ease;
+    position: relative;
+    transition: transform;
+    box-shadow: 3px 3px 0 #B48B7D;
 }
 
 .login-container button:hover {
-    background-color: #e0e0e0;
+    
+}
+
+
+.button:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0.6px 0.4px 0 rgba(0, 0, 0, 1);
 }

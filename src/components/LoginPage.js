@@ -10,6 +10,7 @@ function LoginPage() {
     const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [showSuccess, setShowSuccess] = useState(false);
+    const [buttonIsClicked, setButtonIsClicked] = useState(false);
 
     const appDispatch = useContext(DispatchContext);
 
@@ -27,6 +28,7 @@ function LoginPage() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setButtonIsClicked(true);
         // Handle login logic here
         console.log("Username:", username);
         console.log("Password:", password);
@@ -72,7 +74,9 @@ function LoginPage() {
 
     return (
         <div className="login-container">
-            <h1>Login Page</h1>
+            <h1>
+                Login
+            </h1>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Username:</label>
@@ -84,7 +88,7 @@ function LoginPage() {
                 </div>
                 {showError && <p style={{ color: "red" }}>{errorMessage}</p>}
                 {showSuccess && <p style={{ color: "green" }}>Successfully logged in</p>}
-                <button type="submit">Login</button>
+                <button className={`button login ${buttonIsClicked ? "clicked" : ""}`} type="submit">Login</button>
             </form>
         </div>
     );
