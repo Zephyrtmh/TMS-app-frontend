@@ -31,21 +31,31 @@ function Navbar() {
     };
 
     const handleNavigateToEditUser = () => {
-        navigate(`/user/${appState.username}`);
+        return navigate(`/user/${appState.username}`);
     };
 
-    const handleNavigation = () => {
+    const handleNavigationUserManagement = () => {
         return navigate("/usermanagement");
+    };
+
+    const handleNavigationHome = () => {
+        return navigate("/home");
+    };
+
+    const handleNavigateLogin = () => {
+        return navigate("/login");
     };
 
     const navigate = useNavigate();
 
     return (
         <nav className="navbar">
-            <div className="navbar-title">Task Management System</div>
+            <div className="navbar-title" onClick={handleNavigationHome}>
+                Task Management System
+            </div>
             <ul className="navbar-nav">
                 {appState.userGroups.includes("admin") && (
-                    <li className="nav-item" onClick={handleNavigation}>
+                    <li className="nav-item" onClick={handleNavigationUserManagement}>
                         User Management
                     </li>
                 )}
@@ -57,7 +67,11 @@ function Navbar() {
                         Logout
                     </li>
                 )}
-                {!appState.loggedIn && <li className="nav-item">Login</li>}
+                {!appState.loggedIn && (
+                    <li className="nav-item" onClick={handleNavigateLogin}>
+                        Login
+                    </li>
+                )}
             </ul>
         </nav>
     );

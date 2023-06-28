@@ -1,0 +1,10 @@
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.loading-text {
+    font-size: 24px; /* Increase the font size */
+}

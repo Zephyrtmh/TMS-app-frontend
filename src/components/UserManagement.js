@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import AppStateContext from "../AppStateContext";
+import Loading from "./Loading";
+
+import "../styles/UserManagement.css";
 
 function UserManagement() {
     const appState = useContext(AppStateContext);
@@ -10,13 +13,30 @@ function UserManagement() {
     const [users, setUsers] = useState([]);
     const [userGroups, setUserGroups] = useState([]);
     const [userGroupToAdd, setUserGroupToAdd] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         async function syncBackend() {
-            var verified = await axios.post("http://localhost:8080/verifyuser", {}, { withCredentials: true });
+            //only allow admin users to access
+            try {
+                var verified = await axios.post("http://localhost:8080/verifyuser", { username: appState.username, userGroupsPermitted: ["admin"] }, { withCredentials: true });
+                console.log(verified);
+                if (verified.data.verified === false) {
+                    setIsLoading(false);
+                    return false;
+                } else {
+                    setIsLoading(false);
+                    return true;
+                }
+            } catch (err) {
+                console.log(err);
+                navigate("/login");
+            }
         }
 
-        syncBackend() === true ? navigate("/login") : navigate("/usermanagement");
+        if (syncBackend() === false) {
+            navigate("/login");
+        }
 
         // return navigate("/login");
         //get users
@@ -28,6 +48,10 @@ function UserManagement() {
             res.data.push({ userGroupName: "" });
             setUserGroups(res.data);
         });
+
+        return () => {
+            setIsLoading(false);
+        };
     }, []);
 
     const handleNavigateToEditUser = (user) => {
@@ -68,14 +92,18 @@ function UserManagement() {
 
     const navigate = useNavigate();
 
+    if (isLoading) {
+        return <Loading />;
+    }
+
     return (
         <>
-            {appState.loggedIn && <p>{appState.username + appState.active + appState.userGroup}</p>}
-            <div>
+            {appState.loggedIn && <p className="user-info">{appState.username + appState.active + appState.userGroup}</p>}
+            <div className="user-section">
                 <button className="create-user-button" onClick={handleNavigateToAddUser}>
                     Create User
                 </button>
-                <div>
+                <div className="user-groups">
                     <ul>
                         {userGroups.map((userGroup) => {
                             if (userGroup.userGroupName !== null && userGroup.userGroupName !== "") {
@@ -84,43 +112,56 @@ function UserManagement() {
                         })}
                     </ul>
                     <form>
-                        <label>Group Name</label>
-                        <input id="userGroup" value={userGroupToAdd} onChange={handleChangeUserGroupToAdd}></input>
+                        <label htmlFor="userGroup">Group Name</label>
+                        <input id="userGroup" className="user-group-input" value={userGroupToAdd} onChange={handleChangeUserGroupToAdd}></input>
                         <button type="submit" onClick={handleCreateGroup}>
                             Create Group
                         </button>
                     </form>
                 </div>
             </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Active</th>
-                        <th>User Group</th>
-                        <th>Edit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map((user, index) => (
-                        <tr key={index}>
-                            <td>{user.username}</td>
-                            <td>{user.email}</td>
-                            <td>{user.active}</td>
-                            <td>
-                                {user.userGroups.map((userGroup) => {
-                                    return <p>{userGroup}</p>;
-                                })}
-                            </td>
-                            <td>
-                                <button onClick={() => handleNavigateToEditUser(user)}>Edit</button>
-                            </td>
+            <div className="user-table-container">
+                <table className="user-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Active</th>
+                            <th>User Group</th>
+                            <th>Edit</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {users.map((user, index) => (
+                            <tr key={user.username}>
+                                <td>{user.username}</td>
+                                <td>{user.email}</td>
+                                <td>{user.active}</td>
+                                <td>
+                                    {user.userGroups.length !== 0 ? (
+                                        <div className="table-user-groups-container">
+                                            {user.userGroups.map((userGroup) => {
+                                                return (
+                                                    <div className="table-user-group" key={userGroup}>
+                                                        {userGroup}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <p></p>
+                                    )}
+                                </td>
+                                <td>
+                                    <button className="edit-button" onClick={() => handleNavigateToEditUser(user)}>
+                                        Edit
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
             <div className="additional-content"></div>
         </>

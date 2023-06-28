@@ -1,6 +1,7 @@
 import LoginPage from "../components/LoginPage";
 import React from "react";
 import axios from "axios";
+import LandingPage from "../components/LandingPage";
 
 export function authUser(appState, component, allowed = []) {
     //sync with backend
@@ -21,6 +22,6 @@ export function authUser(appState, component, allowed = []) {
 
         return component;
     } else {
-        return <LoginPage />;
+        return <LandingPage />;
     }
 }

@@ -4,7 +4,11 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import AppStateContext from "../AppStateContext";
 
-function EditUser(prop) {
+import Loading from "./Loading";
+
+import "../styles/EditForm.css";
+
+function EditUser() {
     const [userGroupsAvailable, setUserGroupsAvailable] = useState([]);
     const [userDetails, setUserDetails] = useState([]);
 
@@ -13,14 +17,57 @@ function EditUser(prop) {
     const [userPassword, setUserPassword] = useState("");
     const [userAccStatus, setUserAccStatus] = useState("");
     const [userGroupForUser, setUserGroupForUser] = useState([]);
-    const [passwordIsChecked, setPasswordIsChecked] = useState(false);
+    const [userGroupToChangeTo, setUserGroupToChangeTo] = useState([]);
+
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        axios.get("http://localhost:8080/group/all", { withCredentials: true }).then((res) => {
-            console.log(res.data);
-            res.data.push({ userGroupName: "" });
-            setUserGroupsAvailable(res.data);
-        });
+        let isMounted = true;
+
+        async function syncBackend() {
+            //only allow admin users to access
+            try {
+                var verified = await axios.post("http://localhost:8080/verifyuser", { username: appState.username, userGroupsPermitted: [] }, { withCredentials: true });
+                console.log(verified);
+                if (verified.data.verified === false) {
+                    setIsLoading(false);
+                    return false;
+                } else {
+                    setIsLoading(false);
+                    return true;
+                }
+            } catch (err) {
+                console.log(err);
+                navigate("/login");
+            }
+        }
+
+        if (syncBackend() === false) {
+            navigate("/home");
+        } else {
+            console.log("verified");
+        }
+
+        console.log("appstate" + appState.username + "other one" + username);
+        console.log(appState.username === username);
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        let isMounted = true;
+        try {
+            axios.get("http://localhost:8080/group/all", { withCredentials: true }).then((res) => {
+                console.log(res.data);
+                if (isMounted) {
+                    setUserGroupsAvailable(res.data);
+                }
+            });
+        } catch (err) {
+            console.log(err.status);
+        }
 
         axios
             .post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true })
@@ -34,15 +81,20 @@ function EditUser(prop) {
                 console.log("userGroups");
                 console.log(res.data);
                 console.log(res.data.userGroups);
-                setUserGroupForUser(res.data.userGroups);
+                if (isMounted) {
+                    setUserGroupForUser(res.data.userGroups);
+                    setUserGroupToChangeTo(res.data.userGroups);
+                }
             })
             .catch((err) => {
                 if (err.response.status === 401) {
                     navigate("/login");
                 }
             });
-        console.log("appstate" + appState.username + "other one" + username);
-        console.log(appState.username === username);
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     const handleCancelButton = () => {
@@ -62,7 +114,9 @@ function EditUser(prop) {
     };
 
     const handleUserGroupChange = (e) => {
-        setUserGroupForUser(e.target.value);
+        const selectedValues = Array.from(e.target.selectedOptions).map((option) => option.value);
+        console.log(selectedValues);
+        setUserGroupToChangeTo(selectedValues);
     };
 
     const handlePasswordCheckBox = (e) => {
@@ -75,10 +129,9 @@ function EditUser(prop) {
         const data = {
             username: username,
             password: userPassword,
-            changePassword: passwordIsChecked,
             email: userEmail,
             active: userAccStatus,
-            userGroup: userGroup,
+            userGroups: userGroupToChangeTo,
         };
 
         axios
@@ -102,53 +155,64 @@ function EditUser(prop) {
     const appState = useContext(AppStateContext);
 
     return (
-        <div>
+        <div className="edit-form-container">
             <form>
                 <h1>Edit User</h1>
-                <div>
+                <div className="form-group">
                     <label htmlFor="username">Username:</label>
-                    <input type="text" id="username" readOnly value={username} />
+                    <input type="text" id="username" readOnly value={username} className="form-control" />
                 </div>
 
-                <div>
+                <div className="form-group">
                     <label htmlFor="email">Email:</label>
-                    <input type="email" id="email" value={userEmail} onChange={handleEmailChange} />
+                    <input type="email" id="email" value={userEmail} onChange={handleEmailChange} className="form-control" />
                 </div>
 
-                <div>
+                <div className="form-group">
                     <label htmlFor="password">Password:</label>
-                    <input type="password" id="password" value={userPassword} readOnly={!passwordIsChecked} onChange={handlePasswordChange} />
-                    <input type="checkbox" checked={passwordIsChecked} onChange={handlePasswordCheckBox} />
-                    <div>Change password</div>
+                    <input placeholder="Leave blank not changing" type="password" id="password" value={userPassword} onChange={handlePasswordChange} className="form-control" />
                 </div>
 
-                <div>
+                <div className="form-group">
                     <label htmlFor="status">Account Status:</label>
-                    <select id="status" value={userAccStatus} onChange={handleAccStatusChange} disabled={appState.username === username ? true : false} required>
+                    <select id="status" value={userAccStatus} onChange={handleAccStatusChange} disabled={appState.username === username ? true : false} required className="form-control">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
                 </div>
 
-                <div>
+                <div className="form-group">
                     <label htmlFor="groups">Groups:</label>
-                    <div>
-                        {userGroupForUser.map((group, index) => {
-                            return <p key={index}>{group}</p>;
+                    <div className="user-groups">
+                        {userGroupForUser.map((group) => {
+                            return (
+                                <div className="user-group" key={group}>
+                                    {group}
+                                </div>
+                            );
                         })}
                     </div>
-                    <select id="groups" value={userGroupsAvailable} onChange={handleUserGroupChange}>
-                        {userGroupsAvailable.map((userGroup, index) => (
-                            <option key={index} value={userGroup.userGroupName}>
-                                {userGroup.userGroupName}
-                            </option>
-                        ))}
-                    </select>
+
+                    {appState.userGroups.includes("admin") ? (
+                        <select id="groups" value={userGroupToChangeTo} onChange={handleUserGroupChange} multiple className="form-control">
+                            {userGroupsAvailable.map((userGroup) => (
+                                <option key={userGroup.userGroupName} value={userGroup.userGroupName}>
+                                    {userGroup.userGroupName}
+                                </option>
+                            ))}
+                        </select>
+                    ) : (
+                        <></>
+                    )}
                 </div>
-                <button onClick={handleCancelButton}>Cancel</button>
-                <button type="submit" onClick={handleEditFormSubmit}>
-                    Submit
-                </button>
+                <div className="button-group">
+                    <button className="cancel-button" onClick={handleCancelButton}>
+                        Cancel
+                    </button>
+                    <button type="submit" className="submit-button" onClick={handleEditFormSubmit}>
+                        Submit
+                    </button>
+                </div>
             </form>
         </div>
     );
