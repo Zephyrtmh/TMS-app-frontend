@@ -5,9 +5,9 @@ import LoginPage from "./LoginPage";
 import LandingPage from "./LandingPage";
 import UserManagement from "./UserManagement";
 import EditUser from "./EditUser";
-import AddUser from "./AddUser";
+import CreateUser from "./CreateUser";
+import Profile from "./Profile";
 import { BrowserRouter, Navigate, Route, Router, Routes } from "react-router-dom";
-import { authUser } from "../utils/authenticate";
 
 import AppStateContext from "../AppStateContext";
 import DispatchContext from "../DispatchContext";
@@ -30,7 +30,8 @@ function App() {
             try {
                 console.log("before running verifyuser");
                 console.log(appState.loggedIn);
-                var verified = await axios.post("http://localhost:8080/verifyuser", { username: appState.username, userGroupsPermitted: [] }, { withCredentials: true });
+                console.log("test: " + appState.username);
+                var verified = await axios.post("http://localhost:8080/verifyuser", { verification: { username: "", userGroupsPermitted: [], isEndPoint: true } }, { withCredentials: true });
                 console.log(verified);
                 if (verified.data.verified === false) {
                     setIsLoading(false);
@@ -87,14 +88,10 @@ function App() {
     function appReducer(draft, action) {
         switch (action.type) {
             case "login":
-                console.log("dispatched is run");
                 draft.loggedIn = true;
                 var data = action.data;
-                console.log("data");
-                console.log(data.userGroups);
                 draft.username = data.username;
                 draft.active = data.active;
-                console.log("this is userGroups: ");
                 data.userGroups.forEach((userGroup) => {
                     console.log(userGroup);
                     draft.userGroups.push(userGroup);
@@ -104,7 +101,7 @@ function App() {
                 draft.loggedIn = false;
                 draft.username = "";
                 draft.active = "";
-                draft.userGroup = "";
+                draft.userGroups = [];
                 return;
             case "user":
                 return;
@@ -128,14 +125,15 @@ function App() {
                     <BrowserRouter>
                         <Navigation />
                         <Routes>
-                            <Route path="*" element={authUser(state, <LandingPage />)} replace />
+                            <Route path="*" element={<LandingPage />} replace />
                             {/* <Route exact path="/home" element={(authUser(state, <LandingPage />), ["admin"])} /> */}
-                            <Route exact path="/home" element={authUser(state, <LandingPage />, [])} />
+                            <Route exact path="/home" element={<LandingPage />} />
                             {/* <Route exact path="/usermanagement" element={authUser(state, <UserManagement />, ["admin"])} /> */}
                             <Route exact path="/usermanagement" element={<UserManagement />} />
                             <Route exact path="/user/:username" element={<EditUser />} />
-                            <Route exact path="/user/create" element={<AddUser />} />
-                            <Route exact path="/" element={authUser(state, <LandingPage />)} />
+                            <Route exact path="/profile/:username" element={<Profile />} />
+                            <Route exact path="/user/create" element={<CreateUser />} />
+                            <Route exact path="/" element={<LandingPage />} />
                             <Route exact path="/login" element={<LoginPage />} />
                         </Routes>
                     </BrowserRouter>

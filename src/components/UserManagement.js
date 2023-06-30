@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import AppStateContext from "../AppStateContext";
+import DispatchContext from "../DispatchContext";
+
 import Loading from "./Loading";
 
 import "../styles/UserManagement.css";
@@ -19,7 +21,7 @@ function UserManagement() {
         async function syncBackend() {
             //only allow admin users to access
             try {
-                var verified = await axios.post("http://localhost:8080/verifyuser", { username: appState.username, userGroupsPermitted: ["admin"] }, { withCredentials: true });
+                var verified = await axios.post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: true } }, { withCredentials: true });
                 console.log(verified);
                 if (verified.data.verified === false) {
                     setIsLoading(false);
@@ -35,6 +37,7 @@ function UserManagement() {
         }
 
         if (syncBackend() === false) {
+            appDispatch({ type: "logout" });
             navigate("/login");
         }
 
@@ -54,6 +57,8 @@ function UserManagement() {
         };
     }, []);
 
+    const appDispatch = useContext(DispatchContext);
+
     const handleNavigateToEditUser = (user) => {
         navigate(`/user/${user.username}`);
     };
@@ -69,7 +74,7 @@ function UserManagement() {
     const handleCreateGroup = (e) => {
         e.preventDefault();
         axios
-            .post("http://localhost:8080/group/create", { userGroup: userGroupToAdd }, { withCredentials: true })
+            .post("http://localhost:8080/group/create", { userGroup: userGroupToAdd, verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["admin"] } }, { withCredentials: true })
             .then((res) => {
                 console.log("this is the res");
                 console.log(res);

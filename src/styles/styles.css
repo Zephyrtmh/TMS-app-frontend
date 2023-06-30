@@ -1,3 +1,15 @@
 body {
     background-color: aliceblue;
 }
+
+.error-msg {
+    color: red;
+}
+
+.success-msg {
+    color: green;
+}
+
+.invalid-input {
+    border-color: red;
+}

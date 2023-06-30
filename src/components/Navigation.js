@@ -6,13 +6,13 @@ import DispatchContext from "../DispatchContext";
 import AppStateContext from "../AppStateContext";
 
 function Navbar() {
-    const appDispatch = useContext(DispatchContext);
-    const appState = useContext(AppStateContext);
-
     useEffect(() => {
         console.log("usergroup: " + appState.userGroups);
         console.log(appState);
     }, [appState]);
+
+    const appDispatch = useContext(DispatchContext);
+    const appState = useContext(AppStateContext);
 
     const handleLogout = () => {
         // if (sessionStorage.getItem("loggedIn") !== "true") {
@@ -31,7 +31,7 @@ function Navbar() {
     };
 
     const handleNavigateToEditUser = () => {
-        return navigate(`/user/${appState.username}`);
+        return navigate(`/profile/${appState.username}`);
     };
 
     const handleNavigationUserManagement = () => {

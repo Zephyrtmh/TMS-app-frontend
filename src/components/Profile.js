@@ -3,15 +3,13 @@ import axios from "axios";
 
 import { useNavigate, useParams } from "react-router-dom";
 import AppStateContext from "../AppStateContext";
-import DispatchStateContext from "../DispatchContext";
-// import syncBackend from "../utils/syncBackend";
 
 import Loading from "./Loading";
 
 import "../styles/EditForm.css";
 import "../styles/styles.css";
 
-function EditUser() {
+function Profile() {
     const [userGroupsAvailable, setUserGroupsAvailable] = useState([]);
     const [userDetails, setUserDetails] = useState([]);
 
@@ -21,6 +19,7 @@ function EditUser() {
     const [userAccStatus, setUserAccStatus] = useState("");
     const [userGroupForUser, setUserGroupForUser] = useState([]);
     const [userGroupToChangeTo, setUserGroupToChangeTo] = useState([]);
+
     const [isError, setIsError] = useState(false);
     const [errMessage, setErrMessage] = useState("");
 
@@ -32,7 +31,7 @@ function EditUser() {
         async function syncBackend() {
             //only allow admin users to access
             try {
-                var verified = await axios.post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: true } }, { withCredentials: true });
+                var verified = await axios.post("http://localhost:8080/verifyuser", { username: appState.username, userGroupsPermitted: [], isEndPoint: true }, { withCredentials: true });
                 console.log("after sending call to verifyuser: " + verified.verified);
                 if (verified.data.verified === false) {
                     setIsLoading(false);
@@ -47,7 +46,7 @@ function EditUser() {
             }
         }
 
-        if (syncBackend(appState) === false) {
+        if (syncBackend() === false) {
             navigate("/home");
         } else {
             console.log("verified");
@@ -62,7 +61,6 @@ function EditUser() {
     }, []);
 
     useEffect(() => {
-        setIsLoading(false);
         let isMounted = true;
         try {
             axios.get("http://localhost:8080/group/all", { withCredentials: true }).then((res) => {
@@ -75,28 +73,26 @@ function EditUser() {
             console.log(err.status);
         }
 
-        axios
-            .post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true })
-            .then((res) => {
-                // setUserDetails(res.data);
-                setUserEmail(res.data.email);
-                setUserAccStatus(res.data.active);
-                if (res.data.active === "") {
-                    setUserAccStatus("active");
-                }
-                console.log("userGroups");
-                console.log(res.data);
-                console.log(res.data.userGroups);
-                if (isMounted) {
-                    setUserGroupForUser(res.data.userGroups);
-                    setUserGroupToChangeTo(res.data.userGroups);
-                }
-            })
-            .catch((err) => {
-                if (err.response.status === 401) {
-                    navigate("/login");
-                }
-            });
+        axios.post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true }).then((res) => {
+            // setUserDetails(res.data);
+            setUserEmail(res.data.email);
+            setUserAccStatus(res.data.active);
+            if (res.data.active === "") {
+                setUserAccStatus("active");
+            }
+            console.log("userGroups");
+            console.log(res.data);
+            console.log(res.data.userGroups);
+            if (isMounted) {
+                setUserGroupForUser(res.data.userGroups);
+                setUserGroupToChangeTo(res.data.userGroups);
+            }
+        });
+        // .catch((err) => {
+        //     if (err.response.status === 401) {
+        //         navigate("/login");
+        //     }
+        // });
 
         return () => {
             isMounted = false;
@@ -104,7 +100,7 @@ function EditUser() {
     }, []);
 
     const handleCancelButton = () => {
-        navigate("/usermanagement");
+        navigate("/home");
     };
 
     const handleEmailChange = (e) => {
@@ -133,34 +129,26 @@ function EditUser() {
     const handleEditFormSubmit = (e) => {
         e.preventDefault();
         const data = {
+            username: username,
             password: userPassword,
             email: userEmail,
             active: userAccStatus,
             userGroups: userGroupToChangeTo,
-            verification: {
-                username: appState.username,
-                isEndPoint: false,
-                userGroupsPermitted: ["admin"],
-            },
         };
-        console.log(data);
+
         axios
             .put(`http://localhost:8080/user/${username}`, data, { withCredentials: true })
             .then((res) => {
                 if (res.data.success) {
                     console.log(res.success);
-                    //redirect to user management
-                    navigate("/usermanagement");
+                    navigate("/home");
                 }
             })
             .catch((res) => {
                 let errorMessage = res.response.data.errorMessage;
                 setErrMessage(errorMessage);
                 setIsError(true);
-                if (res.response.data.statusCode === 401) {
-                    appDispatch({ type: "logout" });
-                    navigate("/login");
-                }
+                setUserPassword("");
             });
     };
 
@@ -169,16 +157,11 @@ function EditUser() {
     const { username } = useParams();
 
     const appState = useContext(AppStateContext);
-    const appDispatch = useContext(DispatchStateContext);
-
-    if (isLoading) {
-        return <Loading />;
-    }
 
     return (
         <div className="edit-form-container">
             <form>
-                <h1>Edit User</h1>
+                <h1>My Profile</h1>
                 <div className="form-group">
                     <label htmlFor="username">Username:</label>
                     <input type="text" id="username" readOnly value={username} className="form-control" />
@@ -245,4 +228,4 @@ function EditUser() {
     );
 }
 
-export default EditUser;
+export default Profile;

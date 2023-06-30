@@ -3,11 +3,12 @@
 /* Container */
 .edit-form-container {
     max-width: 400px;
-    margin: 50px auto;
-    padding: 60px;
+    margin: 25px auto;
+    padding: 10px 40px 20px 40px;
     background-color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
+    box-shadow: grey 0px 3px 20px;
 }
 
 /* Form groups */

@@ -2,29 +2,30 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 
 import { useNavigate, useParams } from "react-router-dom";
-import AppStateContext from "../AppStateContext";
-import DispatchStateContext from "../DispatchContext";
-// import syncBackend from "../utils/syncBackend";
 
 import Loading from "./Loading";
 
-import "../styles/EditForm.css";
-import "../styles/styles.css";
+import AppStateContext from "../AppStateContext";
+import DispatchStateContext from "../DispatchContext";
 
-function EditUser() {
-    const [userGroupsAvailable, setUserGroupsAvailable] = useState([]);
+import "../styles/EditForm.css";
+
+function CreateUser() {
+    const [userGroups, setUserGroups] = useState([]);
     const [userDetails, setUserDetails] = useState([]);
 
     //user form fields
+    const [username, setUsername] = useState("");
     const [userEmail, setUserEmail] = useState("");
     const [userPassword, setUserPassword] = useState("");
-    const [userAccStatus, setUserAccStatus] = useState("");
-    const [userGroupForUser, setUserGroupForUser] = useState([]);
+    const [userAccStatus, setUserAccStatus] = useState("active");
     const [userGroupToChangeTo, setUserGroupToChangeTo] = useState([]);
+    const [userGroupsAvailable, setUserGroupsAvailable] = useState([]);
+
     const [isError, setIsError] = useState(false);
     const [errMessage, setErrMessage] = useState("");
-
     const [isLoading, setIsLoading] = useState(true);
+    const [successfullyCreated, setSuccessfullyCreated] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
@@ -42,12 +43,17 @@ function EditUser() {
                     return true;
                 }
             } catch (err) {
-                console.log(err);
-                navigate("/login");
+                console.log(err.response.data.statusCode);
+
+                if (err.response.data.statusCode != 200) {
+                    setIsLoading(false);
+                    appDispatch({ type: "logout" });
+                    navigate("/login");
+                }
             }
         }
 
-        if (syncBackend(appState) === false) {
+        if (syncBackend() === false) {
             navigate("/home");
         } else {
             console.log("verified");
@@ -62,7 +68,6 @@ function EditUser() {
     }, []);
 
     useEffect(() => {
-        setIsLoading(false);
         let isMounted = true;
         try {
             axios.get("http://localhost:8080/group/all", { withCredentials: true }).then((res) => {
@@ -74,34 +79,10 @@ function EditUser() {
         } catch (err) {
             console.log(err.status);
         }
-
-        axios
-            .post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true })
-            .then((res) => {
-                // setUserDetails(res.data);
-                setUserEmail(res.data.email);
-                setUserAccStatus(res.data.active);
-                if (res.data.active === "") {
-                    setUserAccStatus("active");
-                }
-                console.log("userGroups");
-                console.log(res.data);
-                console.log(res.data.userGroups);
-                if (isMounted) {
-                    setUserGroupForUser(res.data.userGroups);
-                    setUserGroupToChangeTo(res.data.userGroups);
-                }
-            })
-            .catch((err) => {
-                if (err.response.status === 401) {
-                    navigate("/login");
-                }
-            });
-
-        return () => {
-            isMounted = false;
-        };
     }, []);
+
+    const appState = useContext(AppStateContext);
+    const appDispatch = useContext(DispatchStateContext);
 
     const handleCancelButton = () => {
         navigate("/usermanagement");
@@ -109,6 +90,10 @@ function EditUser() {
 
     const handleEmailChange = (e) => {
         setUserEmail(e.target.value);
+    };
+
+    const handleUsernameChange = (e) => {
+        setUsername(e.target.value);
     };
 
     const handlePasswordChange = (e) => {
@@ -121,55 +106,64 @@ function EditUser() {
 
     const handleUserGroupChange = (e) => {
         const selectedValues = Array.from(e.target.selectedOptions).map((option) => option.value);
-        console.log(selectedValues);
         setUserGroupToChangeTo(selectedValues);
     };
 
-    const handlePasswordCheckBox = (e) => {
-        console.log(!passwordIsChecked);
-        setPasswordIsChecked(!passwordIsChecked);
-    };
-
-    const handleEditFormSubmit = (e) => {
+    const handleCreateFormSubmit = (e) => {
         e.preventDefault();
+
         const data = {
+            username: username, // username of user to create
             password: userPassword,
             email: userEmail,
             active: userAccStatus,
             userGroups: userGroupToChangeTo,
             verification: {
-                username: appState.username,
+                username: appState.username, // current user's username
                 isEndPoint: false,
                 userGroupsPermitted: ["admin"],
             },
         };
         console.log(data);
+
         axios
-            .put(`http://localhost:8080/user/${username}`, data, { withCredentials: true })
+            .post(`http://localhost:8080/user/create`, data, { withCredentials: true })
             .then((res) => {
                 if (res.data.success) {
                     console.log(res.success);
                     //redirect to user management
-                    navigate("/usermanagement");
+                    // navigate("/usermanagement");
+                    setSuccessfullyCreated(true);
+                    clearFields();
                 }
             })
-            .catch((res) => {
-                let errorMessage = res.response.data.errorMessage;
-                setErrMessage(errorMessage);
-                setIsError(true);
-                if (res.response.data.statusCode === 401) {
+            .catch((err) => {
+                console.log(err);
+                if (err.response.data.statusCode === 401) {
                     appDispatch({ type: "logout" });
                     navigate("/login");
                 }
+            })
+            .catch((err) => {
+                console.log(err);
+                let errorMessage = err.response.data.errorMessage;
+                setErrMessage(errorMessage);
+                setIsError(true);
+                setSuccessfullyCreated(false);
             });
     };
 
+    const clearFields = () => {
+        setUserGroupToChangeTo("");
+        setUserAccStatus("");
+        setUserPassword("");
+        setUserEmail("");
+        setUsername("");
+        setIsError(false);
+        setErrMessage("");
+    };
+
     const navigate = useNavigate();
-
-    const { username } = useParams();
-
-    const appState = useContext(AppStateContext);
-    const appDispatch = useContext(DispatchStateContext);
 
     if (isLoading) {
         return <Loading />;
@@ -177,11 +171,11 @@ function EditUser() {
 
     return (
         <div className="edit-form-container">
-            <form>
-                <h1>Edit User</h1>
+            <form onSubmit={handleCreateFormSubmit}>
+                <h1>Create User</h1>
                 <div className="form-group">
-                    <label htmlFor="username">Username:</label>
-                    <input type="text" id="username" readOnly value={username} className="form-control" />
+                    <label htmlFor="username">Username *:</label>
+                    <input type="text" id="username" value={username} onChange={handleUsernameChange} className="form-control" required />
                 </div>
 
                 <div className="form-group">
@@ -190,13 +184,13 @@ function EditUser() {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="password">Password:</label>
-                    <input placeholder="Leave blank not changing" type="password" id="password" value={userPassword} onChange={handlePasswordChange} className="form-control" />
+                    <label htmlFor="password">Password *:</label>
+                    <input type="password" id="password" value={userPassword} onChange={handlePasswordChange} className="form-control" required />
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="status">Account Status:</label>
-                    <select id="status" value={userAccStatus} onChange={handleAccStatusChange} disabled={appState.username === username ? true : false} required className="form-control">
+                    <label htmlFor="status">Account Status *:</label>
+                    <select id="status" value={userAccStatus} onChange={handleAccStatusChange} required className="form-control">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                     </select>
@@ -204,39 +198,32 @@ function EditUser() {
 
                 <div className="form-group">
                     <label htmlFor="groups">Groups:</label>
-                    {userGroupForUser.length > 0 ? (
-                        <div className="user-groups">
-                            {userGroupForUser.map((group) => {
-                                return (
-                                    <div className="user-group" key={group}>
-                                        {group}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div>No Groups</div>
-                    )}
 
-                    {appState.userGroups.includes("admin") ? (
-                        <select id="groups" value={userGroupToChangeTo} onChange={handleUserGroupChange} multiple className="form-control">
-                            {userGroupsAvailable.map((userGroup) => (
-                                <option key={userGroup.userGroupName} value={userGroup.userGroupName}>
-                                    {userGroup.userGroupName}
-                                </option>
-                            ))}
-                        </select>
-                    ) : (
-                        <></>
-                    )}
+                    <select id="groups" value={userGroupToChangeTo} onChange={handleUserGroupChange} multiple className="form-control">
+                        {userGroupsAvailable.map((userGroup) => (
+                            <option key={userGroup.userGroupName} value={userGroup.userGroupName}>
+                                {userGroup.userGroupName}
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 {/* Error message */}
                 {isError ? <div className="error-msg">{errMessage}</div> : <div></div>}
+                {/* success message */}
+                {successfullyCreated ? <div className="success-msg">Successfully created User. Create another one.</div> : <div></div>}
                 <div className="button-group">
                     <button className="cancel-button" onClick={handleCancelButton}>
                         Cancel
                     </button>
-                    <button type="submit" className="submit-button" onClick={handleEditFormSubmit}>
+                    <button
+                        type="submit"
+                        className="submit-button"
+                        onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                                handleCreateFormSubmit();
+                            }
+                        }}
+                    >
                         Submit
                     </button>
                 </div>
@@ -245,4 +232,4 @@ function EditUser() {
     );
 }
 
-export default EditUser;
+export default CreateUser;
