@@ -33,13 +33,17 @@ label {
 
 /* User groups */
 .user-groups {
+    width: 100%;
     display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
     margin-bottom: 10px;
 }
 
 .user-group {
     padding: 2px 8px 5px 8px;
     margin-right: 10px;
+    margin-top: 8px;
     background-color: rgb(210, 210, 210);
     border-radius: 4px;
 }

@@ -1,5 +1,7 @@
 body {
-    background-color: aliceblue;
+    background-color: white;
+    height: 100vh;
+    font-family: "Roboto";
 }
 
 .error-msg {

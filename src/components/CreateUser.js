@@ -32,35 +32,37 @@ function CreateUser() {
 
         async function syncBackend() {
             //only allow admin users to access
-            try {
-                var verified = await axios.post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: true } }, { withCredentials: true });
-                console.log("after sending call to verifyuser: " + verified.verified);
-                if (verified.data.verified === false) {
-                    setIsLoading(false);
-                    return false;
-                } else {
-                    setIsLoading(false);
-                    return true;
-                }
-            } catch (err) {
-                console.log(err.response.data.statusCode);
-
-                if (err.response.data.statusCode != 200) {
-                    setIsLoading(false);
-                    appDispatch({ type: "logout" });
-                    navigate("/login");
-                }
-            }
+            await axios
+                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: true } }, { withCredentials: true })
+                .then((verified) => {
+                    if (verified) {
+                        if (verified.data.verified === false) {
+                            setIsLoading(false);
+                            return false;
+                        } else {
+                            setIsLoading(false);
+                            return true;
+                        }
+                    }
+                })
+                .catch((err) => {
+                    if (err.response.data.error.statusCode === 401) {
+                        console.log("ran this");
+                        appDispatch({ type: "logout" });
+                        navigate("/login");
+                        return false;
+                    } else {
+                        let errorMessage = err.response.data.errorMessage;
+                        setErrMessage(errorMessage);
+                        setIsError(true);
+                        setSuccessfullyCreated(false);
+                    }
+                });
         }
 
         if (syncBackend() === false) {
-            navigate("/home");
-        } else {
-            console.log("verified");
+            navigate("/login");
         }
-
-        console.log("appstate" + appState.username + "other one" + username);
-        console.log(appState.username === username);
 
         return () => {
             isMounted = false;
@@ -69,16 +71,24 @@ function CreateUser() {
 
     useEffect(() => {
         let isMounted = true;
-        try {
-            axios.get("http://localhost:8080/group/all", { withCredentials: true }).then((res) => {
-                console.log(res.data);
+        axios
+            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["admin"] } }, { withCredentials: true })
+            .then((res) => {
                 if (isMounted) {
                     setUserGroupsAvailable(res.data);
                 }
+            })
+            .catch((err) => {
+                if (err.response.data.error.statusCode === 401) {
+                    appDispatch({ type: "logout" });
+                    navigate("/login");
+                } else {
+                    let errorMessage = err.response.data.errorMessage;
+                    setErrMessage(errorMessage);
+                    setIsError(true);
+                    setSuccessfullyCreated(false);
+                }
             });
-        } catch (err) {
-            console.log(err.status);
-        }
     }, []);
 
     const appState = useContext(AppStateContext);
@@ -139,17 +149,15 @@ function CreateUser() {
             })
             .catch((err) => {
                 console.log(err);
-                if (err.response.data.statusCode === 401) {
+                if (err.response.data.error.statusCode === 401) {
                     appDispatch({ type: "logout" });
                     navigate("/login");
+                } else {
+                    let errorMessage = err.response.data.errorMessage;
+                    setErrMessage(errorMessage);
+                    setIsError(true);
+                    setSuccessfullyCreated(false);
                 }
-            })
-            .catch((err) => {
-                console.log(err);
-                let errorMessage = err.response.data.errorMessage;
-                setErrMessage(errorMessage);
-                setIsError(true);
-                setSuccessfullyCreated(false);
             });
     };
 

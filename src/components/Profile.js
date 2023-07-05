@@ -31,7 +31,7 @@ function Profile() {
         async function syncBackend() {
             //only allow admin users to access
             try {
-                var verified = await axios.post("http://localhost:8080/verifyuser", { username: appState.username, userGroupsPermitted: [], isEndPoint: true }, { withCredentials: true });
+                var verified = await axios.post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: true } }, { withCredentials: true });
                 console.log("after sending call to verifyuser: " + verified.verified);
                 if (verified.data.verified === false) {
                     setIsLoading(false);
@@ -41,7 +41,7 @@ function Profile() {
                     return true;
                 }
             } catch (err) {
-                console.log(err);
+                appDispatch({ type: "logout" });
                 navigate("/login");
             }
         }
@@ -62,16 +62,16 @@ function Profile() {
 
     useEffect(() => {
         let isMounted = true;
-        try {
-            axios.get("http://localhost:8080/group/all", { withCredentials: true }).then((res) => {
-                console.log(res.data);
-                if (isMounted) {
-                    setUserGroupsAvailable(res.data);
-                }
-            });
-        } catch (err) {
-            console.log(err.status);
-        }
+        // try {
+        //     axios.get("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: [] } }, { withCredentials: true }).then((res) => {
+        //         console.log(res.data);
+        //         if (isMounted) {
+        //             setUserGroupsAvailable(res.data);
+        //         }
+        //     });
+        // } catch (err) {
+        //     console.log(err.status);
+        // }
 
         axios.post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true }).then((res) => {
             // setUserDetails(res.data);
@@ -134,6 +134,11 @@ function Profile() {
             email: userEmail,
             active: userAccStatus,
             userGroups: userGroupToChangeTo,
+            verification: {
+                username: appState.username,
+                isEndPoint: false,
+                userGroupsPermitted: [],
+            },
         };
 
         axios
@@ -201,7 +206,7 @@ function Profile() {
                         <div>No Groups</div>
                     )}
 
-                    {appState.userGroups.includes("admin") ? (
+                    {/* {appState.userGroups.includes("admin") ? (
                         <select id="groups" value={userGroupToChangeTo} onChange={handleUserGroupChange} multiple className="form-control">
                             {userGroupsAvailable.map((userGroup) => (
                                 <option key={userGroup.userGroupName} value={userGroup.userGroupName}>
@@ -211,7 +216,7 @@ function Profile() {
                         </select>
                     ) : (
                         <></>
-                    )}
+                    )} */}
                 </div>
                 {/* Error message */}
                 {isError ? <div className="error-msg">{errMessage}</div> : <div></div>}

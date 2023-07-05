@@ -24,15 +24,15 @@
     padding: 8px;
     margin-bottom: 16px;
     width: 250px;
-    background-color: #CCDDD3;
+    background-color: #ccddd3;
     outline: none;
-    border:none;
+    border: none;
 }
 
 .login-container input:focus {
-    box-shadow: 3px 3px 0px #B48B7D;
-    outline-color: #B48B7D;
-    background-color: #DFEFCA;
+    box-shadow: 3px 3px 0px #b48b7d;
+    outline-color: #b48b7d;
+    background-color: #dfefca;
 }
 
 .login-container button {
@@ -40,21 +40,19 @@
     width: 60%;
     padding: 10px 20px;
     /* background-color: rgb(125, 218, 255); */
-    background-color: #FFF9A5;
-    color: #B48B7D;
+    background-color: #fff9a5;
+    color: #b48b7d;
     font-weight: bold;
     border: none;
     cursor: pointer;
     margin-top: 15px;
     position: relative;
     transition: transform;
-    box-shadow: 3px 3px 0 #B48B7D;
+    box-shadow: 3px 3px 0 #b48b7d;
 }
 
 .login-container button:hover {
-    
 }
-
 
 .button:active {
     transform: translate(2px, 2px);

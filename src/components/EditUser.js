@@ -23,6 +23,7 @@ function EditUser() {
     const [userGroupToChangeTo, setUserGroupToChangeTo] = useState([]);
     const [isError, setIsError] = useState(false);
     const [errMessage, setErrMessage] = useState("");
+    const [successfullyEdit, setSuccessfullyEdit] = useState(false);
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -31,30 +32,33 @@ function EditUser() {
 
         async function syncBackend() {
             //only allow admin users to access
-            try {
-                var verified = await axios.post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: true } }, { withCredentials: true });
-                console.log("after sending call to verifyuser: " + verified.verified);
-                if (verified.data.verified === false) {
-                    setIsLoading(false);
-                    return false;
-                } else {
-                    setIsLoading(false);
-                    return true;
-                }
-            } catch (err) {
-                console.log(err);
-                navigate("/login");
-            }
+            await axios
+                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: true } }, { withCredentials: true })
+                .then((verified) => {
+                    if (verified.data.verified === false) {
+                        setIsLoading(false);
+                        return false;
+                    } else {
+                        setIsLoading(false);
+                        return true;
+                    }
+                })
+                .catch((err) => {
+                    if (err.response.data.error.statusCode === 401) {
+                        appDispatch({ type: "logout" });
+                        navigate("/login");
+                    } else {
+                        let errorMessage = err.response.data.errorMessage;
+                        setErrMessage(errorMessage);
+                        setIsError(true);
+                        setSuccessfullyEdit(false);
+                    }
+                });
         }
 
-        if (syncBackend(appState) === false) {
+        if (syncBackend() === false) {
             navigate("/home");
-        } else {
-            console.log("verified");
         }
-
-        console.log("appstate" + appState.username + "other one" + username);
-        console.log(appState.username === username);
 
         return () => {
             isMounted = false;
@@ -64,16 +68,20 @@ function EditUser() {
     useEffect(() => {
         setIsLoading(false);
         let isMounted = true;
-        try {
-            axios.get("http://localhost:8080/group/all", { withCredentials: true }).then((res) => {
+        axios
+            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["admin"] } }, { withCredentials: true })
+            .then((res) => {
                 console.log(res.data);
                 if (isMounted) {
                     setUserGroupsAvailable(res.data);
                 }
+            })
+            .catch((err) => {
+                if (err.response.data.error.statusCode === 401) {
+                    appDispatch({ type: "logout" });
+                    navigate("/login");
+                }
             });
-        } catch (err) {
-            console.log(err.status);
-        }
 
         axios
             .post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true })
@@ -148,18 +156,21 @@ function EditUser() {
             .put(`http://localhost:8080/user/${username}`, data, { withCredentials: true })
             .then((res) => {
                 if (res.data.success) {
-                    console.log(res.success);
+                    console.log(res);
                     //redirect to user management
-                    navigate("/usermanagement");
+                    setTimeout(() => {}, 3000);
+                    return navigate("/usermanagement");
                 }
             })
-            .catch((res) => {
-                let errorMessage = res.response.data.errorMessage;
-                setErrMessage(errorMessage);
-                setIsError(true);
-                if (res.response.data.statusCode === 401) {
+            .catch((err) => {
+                if (err.response.data.error.statusCode === 401) {
                     appDispatch({ type: "logout" });
                     navigate("/login");
+                } else {
+                    let errorMessage = err.response.data.errorMessage;
+                    setErrMessage(errorMessage);
+                    setIsError(true);
+                    setSuccessfullyEdit(false);
                 }
             });
     };

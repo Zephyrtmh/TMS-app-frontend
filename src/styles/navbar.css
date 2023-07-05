@@ -7,8 +7,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #FFF9A5;
-    color: #B48B7D;
+    background-color: #fff9a5;
+    color: #b48b7d;
     padding: 20px 30px;
     margin: 0;
 }
@@ -33,5 +33,5 @@ body {
 }
 
 .nav-item:hover {
-    color: #ddd;
+    color: #775a50;
 }

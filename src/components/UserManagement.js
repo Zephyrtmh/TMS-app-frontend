@@ -17,40 +17,82 @@ function UserManagement() {
     const [userGroupToAdd, setUserGroupToAdd] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [isError, setIsError] = useState(false);
+    const [errMessage, setErrMessage] = useState("");
+    const [successfullyCreated, setSuccessfullyCreated] = useState(false);
+
     useEffect(() => {
         async function syncBackend() {
             //only allow admin users to access
-            try {
-                var verified = await axios.post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: true } }, { withCredentials: true });
-                console.log(verified);
-                if (verified.data.verified === false) {
-                    setIsLoading(false);
-                    return false;
-                } else {
-                    setIsLoading(false);
-                    return true;
-                }
-            } catch (err) {
-                console.log(err);
-                navigate("/login");
-            }
+            setIsLoading(true);
+
+            await axios
+                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: true } }, { withCredentials: true })
+                .then((verified) => {
+                    if (verified) {
+                        if (verified.data.verified === false) {
+                            setIsLoading(false);
+                            return false;
+                        } else {
+                            setIsLoading(false);
+                            return true;
+                        }
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    if (err.response.data.error.statusCode === 401) {
+                        appDispatch({ type: "logout" });
+                        navigate("/login");
+                        return;
+                    } else {
+                        let errorMessage = err.response.data.errorMessage;
+                        setErrMessage(errorMessage);
+                        setIsError(true);
+                        setSuccessfullyCreated(false);
+                    }
+                });
         }
 
         if (syncBackend() === false) {
             appDispatch({ type: "logout" });
             navigate("/login");
+            return;
         }
+    }, []);
 
-        // return navigate("/login");
-        //get users
-        axios.get("http://localhost:8080/user/all", { withCredentials: true }).then((res) => {
-            setUsers(res.data);
-        });
+    useEffect(() => {
+        setIsLoading(true);
+        axios
+            .post("http://localhost:8080/user/all", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: false } }, { withCredentials: true })
+            .then((res) => {
+                setUsers(res.data);
+            })
+            .catch((err) => {
+                if (err.response.data.error.statusCode === 401) {
+                    appDispatch({ type: "logout" });
+                    navigate("/login");
+                }
+            });
 
-        axios.get("http://localhost:8080/group/all", { withCredentials: true }).then((res) => {
-            res.data.push({ userGroupName: "" });
-            setUserGroups(res.data);
-        });
+        axios
+            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["admin"] } }, { withCredentials: true })
+            .then((res) => {
+                res.data.push({ userGroupName: "" });
+                setUserGroups(res.data);
+            })
+            .catch((err) => {
+                if (err.response.data.error.statusCode === 401) {
+                    appDispatch({ type: "logout" });
+                    navigate("/login");
+                    return;
+                } else {
+                    let errorMessage = err.response.data.errorMessage;
+                    setErrMessage(errorMessage);
+                    setIsError(true);
+                    setSuccessfullyCreated(false);
+                }
+            });
 
         return () => {
             setIsLoading(false);
@@ -76,12 +118,12 @@ function UserManagement() {
         axios
             .post("http://localhost:8080/group/create", { userGroup: userGroupToAdd, verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["admin"] } }, { withCredentials: true })
             .then((res) => {
-                console.log("this is the res");
-                console.log(res);
                 if (res.data) {
                     if (res.data.success === false) {
                         console.log(res.data.reason);
                     } else {
+                        setSuccessfullyCreated(true);
+                        setIsError(false);
                         const newUserGroups = userGroups.concat({ userGroupName: userGroupToAdd });
                         console.log(newUserGroups);
                         setUserGroups(newUserGroups);
@@ -89,8 +131,16 @@ function UserManagement() {
                 }
             })
             .catch((err) => {
-                console.log(err.response.data);
-                console.log(err.response.status);
+                console.log(err.response.data.error.statusCode);
+                if (err.response.data.error.statusCode === 401) {
+                    appDispatch({ type: "logout" });
+                    navigate("/login");
+                } else {
+                    let errorMessage = err.response.data.errorMessage;
+                    setErrMessage(errorMessage);
+                    setIsError(true);
+                    setSuccessfullyCreated(false);
+                }
             });
         setUserGroupToAdd("");
     };
@@ -103,35 +153,51 @@ function UserManagement() {
 
     return (
         <>
-            {appState.loggedIn && <p className="user-info">{appState.username + appState.active + appState.userGroup}</p>}
-            <div className="user-section">
-                <button className="create-user-button" onClick={handleNavigateToAddUser}>
-                    Create User
-                </button>
-                <div className="user-groups">
-                    <ul>
-                        {userGroups.map((userGroup) => {
-                            if (userGroup.userGroupName !== null && userGroup.userGroupName !== "") {
-                                return <li key={userGroup.userGroupName}>{userGroup.userGroupName}</li>;
-                            }
-                        })}
-                    </ul>
-                    <form>
-                        <label htmlFor="userGroup">Group Name</label>
-                        <input id="userGroup" className="user-group-input" value={userGroupToAdd} onChange={handleChangeUserGroupToAdd}></input>
-                        <button type="submit" onClick={handleCreateGroup}>
-                            Create Group
-                        </button>
-                    </form>
+            <div className="user-section-container">
+                <div className="user-section">
+                    <button className="create-user button" onClick={handleNavigateToAddUser}>
+                        Create User
+                    </button>
+                    <div className="user-groups-usermanagement">
+                        <div>
+                            <div>user-group list</div>
+                            <div className="existing-user-groups-list">
+                                <ul>
+                                    {userGroups.map((userGroup) => {
+                                        if (userGroup.userGroupName !== null && userGroup.userGroupName !== "") {
+                                            return <li key={userGroup.userGroupName}>{userGroup.userGroupName}</li>;
+                                        }
+                                    })}
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <form className="create-group-form">
+                                <div className="create-group-form-input">
+                                    <label htmlFor="userGroup">Group Name</label>
+                                    <input id="userGroup" className="user-group-input" value={userGroupToAdd} onChange={handleChangeUserGroupToAdd}></input>
+                                </div>
+
+                                <button type="submit" onClick={handleCreateGroup} className="create-group button">
+                                    Create Group
+                                </button>
+                            </form>
+                            {/* Error message */}
+                            {isError ? <div className="error-msg">{errMessage}</div> : <div></div>}
+                            {/* success message */}
+                            {successfullyCreated ? <div className="success-msg">Successfully created group. Create another one.</div> : <div></div>}
+                        </div>
+                    </div>
                 </div>
             </div>
+
             <div className="user-table-container">
                 <table className="user-table">
                     <thead>
                         <tr>
                             <th>Username</th>
                             <th>Email</th>
-                            <th>Active</th>
+                            <th>Status</th>
                             <th>User Group</th>
                             <th>Edit</th>
                         </tr>
@@ -158,7 +224,7 @@ function UserManagement() {
                                     )}
                                 </td>
                                 <td>
-                                    <button className="edit-button" onClick={() => handleNavigateToEditUser(user)}>
+                                    <button className="edit-user button" onClick={() => handleNavigateToEditUser(user)}>
                                         Edit
                                     </button>
                                 </td>
@@ -167,8 +233,6 @@ function UserManagement() {
                     </tbody>
                 </table>
             </div>
-
-            <div className="additional-content"></div>
         </>
     );
 }

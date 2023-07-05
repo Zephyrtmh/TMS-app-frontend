@@ -59,9 +59,11 @@ function Navbar() {
                         User Management
                     </li>
                 )}
-                <li className="nav-item" onClick={handleNavigateToEditUser}>
-                    Profile
-                </li>
+                {appState.loggedIn && (
+                    <li className="nav-item" onClick={handleNavigateToEditUser}>
+                        Profile
+                    </li>
+                )}
                 {appState.loggedIn && (
                     <li className="nav-item" onClick={handleLogout}>
                         Logout
