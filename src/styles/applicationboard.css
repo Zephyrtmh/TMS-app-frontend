@@ -1,0 +1,35 @@
+.application-board-container {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    /* justify-content: space-around; */
+}
+
+.application-board-header {
+    display: flex;
+    width: 100vw;
+    justify-content: space-around;
+
+    /* padding-right: 50; */
+}
+
+.application-board-header-right {
+    display: flex;
+    justify-content: space-between;
+}
+
+.application-board-table {
+    width: 100vw;
+    text-align: center;
+}
+
+.application-board-table-cell {
+    vertical-align: top;
+}
+
+.row-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}

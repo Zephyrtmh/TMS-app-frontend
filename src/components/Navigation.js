@@ -38,6 +38,10 @@ function Navbar() {
         return navigate("/usermanagement");
     };
 
+    const handleNavigationApplicationManagement = () => {
+        return navigate("/applicationmanagement");
+    };
+
     const handleNavigationHome = () => {
         return navigate("/home");
     };
@@ -54,6 +58,11 @@ function Navbar() {
                 Task Management System
             </div>
             <ul className="navbar-nav">
+                {appState.userGroups.includes("project lead") && (
+                    <li className="nav-item" onClick={handleNavigationApplicationManagement}>
+                        Application Management
+                    </li>
+                )}
                 {appState.userGroups.includes("admin") && (
                     <li className="nav-item" onClick={handleNavigationUserManagement}>
                         User Management

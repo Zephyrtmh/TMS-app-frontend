@@ -12,6 +12,8 @@ import { BrowserRouter, Navigate, Route, Router, Routes } from "react-router-dom
 import AppStateContext from "../AppStateContext";
 import DispatchContext from "../DispatchContext";
 import axios from "axios";
+import ApplicationManagement from "./ApplicationManagement";
+import ViewApplication from "./ViewApplication";
 
 function App() {
     const appState = {
@@ -130,6 +132,8 @@ function App() {
                             <Route exact path="/home" element={<LandingPage />} />
                             {/* <Route exact path="/usermanagement" element={authUser(state, <UserManagement />, ["admin"])} /> */}
                             <Route exact path="/usermanagement" element={<UserManagement />} />
+                            <Route exact path="/applicationmanagement" element={<ApplicationManagement />} />
+                            <Route exact path="/application/:appAcronym" element={<ViewApplication />} />
                             <Route exact path="/user/:username" element={<EditUser />} />
                             <Route exact path="/profile/:username" element={<Profile />} />
                             <Route exact path="/user/create" element={<CreateUser />} />
