@@ -74,7 +74,7 @@ function ViewApplication() {
         let isMounted = true;
 
         axios
-            .post(`http://localhost:8080/application/${appAcronym}`, { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: false } }, { withCredentials: true })
+            .post(`http://localhost:8080/application/${appAcronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
             .then((res) => {
                 setApplication(res.data);
             })
@@ -85,7 +85,7 @@ function ViewApplication() {
             });
 
         axios
-            .post(`http://localhost:8080/plan/all`, { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: false } }, { withCredentials: true })
+            .post(`http://localhost:8080/plan/all`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
             .then((res) => {
                 setPlans(res.data);
             })
@@ -96,7 +96,7 @@ function ViewApplication() {
             });
 
         axios
-            .post(`http://localhost:8080/task/all`, { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: false } }, { withCredentials: true })
+            .post(`http://localhost:8080/task/all`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
             .then((res) => {
                 setTasks(res.data);
                 console.log(res.data.length);
@@ -145,70 +145,6 @@ function ViewApplication() {
             isMounted = false;
         };
     }, []);
-
-    const handleCancelButton = () => {
-        navigate("/usermanagement");
-    };
-
-    const handleEmailChange = (e) => {
-        setUserEmail(e.target.value);
-    };
-
-    const handlePasswordChange = (e) => {
-        setUserPassword(e.target.value);
-    };
-
-    const handleAccStatusChange = (e) => {
-        setUserAccStatus(e.target.value);
-    };
-
-    const handleUserGroupChange = (e) => {
-        const selectedValues = Array.from(e.target.selectedOptions).map((option) => option.value);
-        console.log(selectedValues);
-        setUserGroupToChangeTo(selectedValues);
-    };
-
-    const handlePasswordCheckBox = (e) => {
-        console.log(!passwordIsChecked);
-        setPasswordIsChecked(!passwordIsChecked);
-    };
-
-    const handleEditFormSubmit = (e) => {
-        e.preventDefault();
-        const data = {
-            password: userPassword,
-            email: userEmail,
-            active: userAccStatus,
-            userGroups: userGroupToChangeTo,
-            verification: {
-                username: appState.username,
-                isEndPoint: false,
-                userGroupsPermitted: ["admin"],
-            },
-        };
-        console.log(data);
-        axios
-            .put(`http://localhost:8080/user/${username}`, data, { withCredentials: true })
-            .then((res) => {
-                if (res.data.success) {
-                    console.log(res);
-                    //redirect to user management
-                    setTimeout(() => {}, 3000);
-                    return navigate("/usermanagement");
-                }
-            })
-            .catch((err) => {
-                if (err.response.data.error.statusCode === 401) {
-                    appDispatch({ type: "logout" });
-                    navigate("/login");
-                } else {
-                    let errorMessage = err.response.data.errorMessage;
-                    setErrMessage(errorMessage);
-                    setIsError(true);
-                    setSuccessfullyEdit(false);
-                }
-            });
-    };
 
     const navigate = useNavigate();
 
