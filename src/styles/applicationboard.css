@@ -25,6 +25,7 @@
 
 .application-board-table-cell {
     vertical-align: top;
+    max-width: 200px;
 }
 
 .row-container {
@@ -32,4 +33,5 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
+    
 }
