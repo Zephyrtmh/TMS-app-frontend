@@ -7,7 +7,7 @@ export default function TaskCard(task) {
     const navigate = useNavigate();
 
     const handlePromoteButtonClick = (taskId) => {
-        navigate(`/task/${taskId}?type=promote`, {state: "test"});
+        navigate(`/task/${taskId}?type=promote`);
     };
 
     const handleEditButtonClick = (taskId) => {
@@ -15,7 +15,7 @@ export default function TaskCard(task) {
     };
 
     const handleDemoteButtonClick = (taskId) => {
-        navigate(`/task/${taskId}?type=demote`);
+        navigate(`/task/${taskId}?type=demote`, {state: task});
     };
 
     return (

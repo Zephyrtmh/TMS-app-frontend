@@ -30,6 +30,6 @@ export default function EditTask() {
     })
 
   return (
-    <div>{"taskId " + taskId +location.state}</div>
+    <div>{"taskId " + taskId +location}</div>
   )
 }
