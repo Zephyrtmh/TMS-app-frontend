@@ -1,15 +1,22 @@
-import React from "react";
 import "../styles/taskcard.css";
-
-import AppStateContext from "../AppStateContext";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function TaskCard(task) {
 
-    const appState = useContext(AppStateContext);
-
-    const handleEditButtonClick = (e) => {
-        
+    const handlePromoteButtonClick = (taskId) => {
+        navigate(`/task/${taskId}?type=promote`);
     };
+
+    const handleEditButtonClick = (taskId) => {
+        navigate(`/task/${taskId}?type=edit`);
+    };
+
+    const handleDemoteButtonClick = (taskId) => {
+        navigate(`/task/${taskId}?type=demote`);
+    };
+
+    const navigate = useNavigate();
 
     return (
         <div className="task-card-container">
@@ -18,9 +25,9 @@ export default function TaskCard(task) {
             <div>{task.task_id}</div>
             <div>{task.task_owner}</div>
             <div>{task.task_createdate}</div>
-            <button onClick="handleEditButtonClick">Demote</button>
-            <button onClick="handleEditButtonClick">Edit</button>
-            <button onClick="handleEditButtonClick">Promote</button>
+            <button onClick={() => {handleDemoteButtonClick(task.task_id)}}>Demote</button>
+            <button onClick={() => {handleEditButtonClick(task.task_id)}}>Edit</button>
+            <button onClick={() => {handlePromoteButtonClick(task.task_id)}}>Promote</button>
         </div>
     );
 }

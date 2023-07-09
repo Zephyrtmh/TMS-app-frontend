@@ -14,6 +14,7 @@ import DispatchContext from "../DispatchContext";
 import axios from "axios";
 import ApplicationManagement from "./ApplicationManagement";
 import ViewApplication from "./ViewApplication";
+import EditTask from "./EditTask";
 
 function App() {
     const appState = {
@@ -134,6 +135,7 @@ function App() {
                             <Route exact path="/usermanagement" element={<UserManagement />} />
                             <Route exact path="/applicationmanagement" element={<ApplicationManagement />} />
                             <Route exact path="/application/:appAcronym" element={<ViewApplication />} />
+                            <Route exact path="/task/:taskId" element={<EditTask />} />
                             <Route exact path="/user/:username" element={<EditUser />} />
                             <Route exact path="/profile/:username" element={<Profile />} />
                             <Route exact path="/user/create" element={<CreateUser />} />
