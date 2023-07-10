@@ -15,6 +15,7 @@ import axios from "axios";
 import ApplicationManagement from "./ApplicationManagement";
 import ViewApplication from "./ViewApplication";
 import EditTask from "./EditTask";
+import CreatePlan from "./CreatePlan";
 
 function App() {
     const appState = {
@@ -137,6 +138,7 @@ function App() {
                             <Route exact path="/application/:appAcronym" element={<ViewApplication />} />
                             <Route exact path="/task/:taskId" element={<EditTask />} />
                             <Route exact path="/user/:username" element={<EditUser />} />
+                            <Route exact path="/plan/create" element={<CreatePlan />} />
                             <Route exact path="/profile/:username" element={<Profile />} />
                             <Route exact path="/user/create" element={<CreateUser />} />
                             <Route exact path="/" element={<LandingPage />} />

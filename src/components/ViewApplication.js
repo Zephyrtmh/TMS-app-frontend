@@ -31,6 +31,10 @@ function ViewApplication() {
 
     const [isLoading, setIsLoading] = useState(true);
 
+    const handleCreatePlan = () => {
+        navigate("/plan/create", { state: application });
+    };
+
     useEffect(() => {
         let isMounted = true;
         setIsLoading(true);
@@ -177,7 +181,7 @@ function ViewApplication() {
                         ))}
                     </select>
                     <div>
-                        <button>Create Plan</button>
+                        <button onClick={handleCreatePlan}>Create Plan</button>
                     </div>
                 </div>
             </div>
