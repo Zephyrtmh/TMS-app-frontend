@@ -136,16 +136,17 @@ export default function EditTask() {
         console.log(data);
         const action = new URLSearchParams(location.search).get("type");
         console.log(action);
-        const promoteData = {
+        const actionData = {
             taskId: task.task_id,
             username: appState.username,
+            action: action,
             verification: {
                 username: "admin",
                 isEndPoint: false,
                 userGroupsPermitted: [],
             },
         };
-        console.log(promoteData);
+        console.log(actionData);
 
         try {
             axios
@@ -154,16 +155,27 @@ export default function EditTask() {
                     switch (action) {
                         case "promote":
                             axios
-                                .post("http://localhost:8080/task/promote", promoteData, { withCredentials: true })
+                                .post("http://localhost:8080/task/promote", actionData, { withCredentials: true })
                                 .then((res) => {
                                     console.log(res.data);
                                     return navigate(`/application/${task.task_app_acronym}`);
                                 })
                                 .catch((err) => {
                                     console.log(err);
+                                    return navigate(`/application/${task.task_app_acronym}`);
                                 });
                             break;
                         case "demote":
+                            axios
+                                .post("http://localhost:8080/task/demote", actionData, { withCredentials: true })
+                                .then((res) => {
+                                    console.log(res.data);
+                                    return navigate(`/application/${task.task_app_acronym}`);
+                                })
+                                .catch((err) => {
+                                    console.log(err);
+                                    return navigate(`/application/${task.task_app_acronym}`);
+                                });
                             break;
                         case "edit":
                             navigate(`/application/${task.task_app_acronym}`);

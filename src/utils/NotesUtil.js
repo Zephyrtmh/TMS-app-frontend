@@ -8,7 +8,7 @@ module.exports.processStringNotesToArray = (notesString) => {
         const author = match[2].trim();
         const createdate = match[3].trim();
 
-        console.log(content, author, createdate);
+        console.log({ content: content, author: author, createdate: createdate });
 
         notesArray.push({ content: content, author: author, createdate: createdate });
     }
