@@ -33,6 +33,7 @@ function ViewApplication() {
 
     useEffect(() => {
         let isMounted = true;
+        setIsLoading(true);
 
         async function syncBackend() {
             //only allow admin users to access
@@ -133,6 +134,7 @@ function ViewApplication() {
                             console.log("belongs in none of the states");
                     }
                 });
+                setIsLoading(false);
             })
             .catch((err) => {
                 console.log(err);
