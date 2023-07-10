@@ -85,7 +85,7 @@ function ViewApplication() {
             });
 
         axios
-            .post(`http://localhost:8080/plan/all`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
+            .post(`http://localhost:8080/plan/all?app=${appAcronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
             .then((res) => {
                 setPlans(res.data);
             })
@@ -96,7 +96,7 @@ function ViewApplication() {
             });
 
         axios
-            .post(`http://localhost:8080/task/all`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
+            .post(`http://localhost:8080/task/all?app=${appAcronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
             .then((res) => {
                 setTasks(res.data);
                 console.log(res.data.length);

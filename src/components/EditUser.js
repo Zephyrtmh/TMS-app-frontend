@@ -158,7 +158,6 @@ function EditUser() {
                 if (res.data.success) {
                     console.log(res);
                     //redirect to user management
-                    setTimeout(() => {}, 3000);
                     return navigate("/usermanagement");
                 }
             })

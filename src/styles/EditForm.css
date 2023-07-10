@@ -92,3 +92,13 @@ input::placeholder {
 #groups {
     height: 150px;
 }
+
+.task-details {
+    padding-bottom: 20px;
+}
+
+.task-note {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
