@@ -113,7 +113,7 @@ export default function EditTask() {
     }, [task]);
 
     const handleCancelButton = () => {
-        navigate(`/application/${task.task_app_acronym}`);
+        return navigate(`/application/${task.task_app_acronym}`);
     };
 
     const handleSubmitButton = (e) => {
@@ -157,18 +157,20 @@ export default function EditTask() {
                                 .post("http://localhost:8080/task/promote", promoteData, { withCredentials: true })
                                 .then((res) => {
                                     console.log(res.data);
-                                    navigate(`/application/${task.task_app_acronym}`);
+                                    return navigate(`/application/${task.task_app_acronym}`);
                                 })
                                 .catch((err) => {
                                     console.log(err);
                                 });
+                            break;
                         case "demote":
-
+                            break;
                         case "edit":
                             navigate(`/application/${task.task_app_acronym}`);
-
+                            break;
                         default:
                             console.log("no action provided");
+                            break;
                     }
                 })
                 .catch((err) => {
