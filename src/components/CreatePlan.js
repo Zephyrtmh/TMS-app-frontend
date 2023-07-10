@@ -7,6 +7,7 @@ import DispatchStateContext from "../DispatchContext";
 export default function CreatePlan() {
     const location = useLocation();
     const application = location.state;
+    console.log(location.state);
     const appStartdate = application.app_startdate;
     const appEnddate = application.app_enddate;
 
@@ -26,7 +27,7 @@ export default function CreatePlan() {
         };
 
         retrieveData();
-    });
+    }, []);
 
     //retrieve data
     useEffect(() => {
@@ -36,7 +37,7 @@ export default function CreatePlan() {
         };
 
         retrieveData();
-    });
+    }, []);
 
     const handlePlanMvpNameChange = (e) => {
         setPlanMvpName(e.target.value);
@@ -50,9 +51,33 @@ export default function CreatePlan() {
         setPlanEndDate(e.target.value);
     };
 
-    const handleCreateFormSubmit = () => {};
+    const handleCreateFormSubmit = (e) => {
+        e.preventDefault();
+        const data = {
+            plan_mvp_name: planMvpName,
+            plan_startdate: planStartdate,
+            plan_enddate: planEnddate,
+            plan_app_acronym: application.app_acronym,
+            verification: {
+                username: "admin",
+                isEndPoint: false,
+                userGroupsPermitted: [],
+            },
+        };
+        console.log(data);
+        axios
+            .post("http://localhost:8080/plan/create", data, { withCredentials: true })
+            .then(() => {
+                return navigate(`/application/${application.app_acronym}`);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
     const handleCancelButton = () => {};
+
+    const navigate = useNavigate();
 
     return (
         <div className="edit-form-container">
@@ -86,15 +111,7 @@ export default function CreatePlan() {
                     <button className="cancel-button" onClick={handleCancelButton}>
                         Cancel
                     </button>
-                    <button
-                        type="submit"
-                        className="submit-button"
-                        onKeyDown={(event) => {
-                            if (event.key === "Enter") {
-                                handleCreateFormSubmit();
-                            }
-                        }}
-                    >
+                    <button type="submit" className="submit-button" onClick={handleCreateFormSubmit}>
                         Submit
                     </button>
                 </div>
