@@ -31,6 +31,21 @@ function ViewApplication() {
 
     const [isLoading, setIsLoading] = useState(true);
 
+    const [selectedPlans, setSelectedPlans] = useState([]);
+
+    const navigate = useNavigate();
+
+    const { appAcronym } = useParams();
+
+    const appState = useContext(AppStateContext);
+    const appDispatch = useContext(DispatchStateContext);
+
+    const permitOpen = appState.userGroups.includes(application.app_permit_open);
+    const permitTodo = appState.userGroups.includes(application.app_permit_todo);
+    const permitDoing = appState.userGroups.includes(application.app_permit_doing);
+    const permitDone = appState.userGroups.includes(application.app_permit_done);
+    const permitClosed = appState.userGroups.includes(application.app_permit_closed);
+
     const handleCreatePlan = () => {
         navigate("/plan/create", { state: application });
     };
@@ -96,7 +111,11 @@ function ViewApplication() {
         axios
             .post(`http://localhost:8080/plan/all?app=${appAcronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
             .then((res) => {
-                setPlans(res.data);
+                const convertedData = res.data.reduce((obj, item, index) => {
+                    obj[item.plan_mvp_name] = item;
+                    return obj;
+                }, {});
+                setPlans(convertedData);
             })
             .catch((err) => {
                 if (err.response.status === 401) {
@@ -108,7 +127,7 @@ function ViewApplication() {
             .post(`http://localhost:8080/task/all?app=${appAcronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
             .then((res) => {
                 setTasks(res.data);
-                console.log(res.data.length);
+                console.log(res.data);
                 res.data.map((task) => {
                     switch (task.task_state) {
                         case "open":
@@ -156,12 +175,19 @@ function ViewApplication() {
         };
     }, []);
 
-    const navigate = useNavigate();
+    useEffect(() => {
+        console.log(selectedPlans);
+        for (let plan of selectedPlans) {
+            console.log(plans[plan]);
+        }
+    }, [selectedPlans]);
 
-    const { appAcronym } = useParams();
-
-    const appState = useContext(AppStateContext);
-    const appDispatch = useContext(DispatchStateContext);
+    const handleSelectPlan = (e) => {
+        var plans = Array.from(e.target.selectedOptions).map((option) => option.value);
+        setTimeout(() => {
+            setSelectedPlans(plans);
+        }, 2000);
+    };
 
     if (isLoading) {
         return <Loading />;
@@ -170,16 +196,36 @@ function ViewApplication() {
     return (
         <div className="application-board-container">
             <div className="application-board-header">
-                <h1>Application: {appAcronym}</h1>
-                <div className="application-board-header-right">
+                <div>
+                    <h1>Application: {appAcronym}</h1>
                     <div>
-                        <div>Start date: {application.app_startdate}</div>
-                        <div>End date: {application.app_enddate}</div>
+                        <div>Start date: {application.app_startdate ? application.app_startdate.substring(0, 10) : ""}</div>
+                        <div>End date: {application.app_enddate ? application.app_enddate.substring(0, 10) : ""}</div>
                     </div>
-                    <select id="groups" onChange={() => {}} multiple className="form-control">
-                        <option>All plans</option>
-                        {plans.map((plan) => (
-                            <option key={plan.plan_mvp_name} value={plan.plan_mvp_name}>
+                </div>
+                {selectedPlans.length > 0 ? (
+                    <div className="plan-detail-container">
+                        {selectedPlans.map((plan) => {
+                            let plan_ = plans[plan];
+                            return (
+                                <div className="plan-detail-cell" key={plan_.plan_mvp_name}>
+                                    <div id="plan-name">{plan_.plan_mvp_name}</div>
+                                    <div>
+                                        &nbsp;&nbsp;[{plan_.plan_startdate.substring(0, 10)} -&gt; {plan_.plan_enddate.substring(0, 10)}]
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <></>
+                )}
+
+                <div className="application-board-header-right">
+                    <select id="groups" onChange={handleSelectPlan} multiple className="form-control">
+                        {/* <option>All plans</option> */}
+                        {Object.values(plans).map((plan) => (
+                            <option key={plan.plan_mvp_name} value={plan.plan_mvp_name} style={{ backgroundColor: plan.plan_colour ? plan.plan_colour : "white" }}>
                                 {plan.plan_mvp_name}
                             </option>
                         ))}
@@ -206,41 +252,119 @@ function ViewApplication() {
                             <th>Closed</th>
                         </tr>
                         <tr>
-                            <td className="application-board-table-cell">
-                                <div className="row-container">
-                                    {openTasks.map((task) => {
-                                        return <TaskCard key={task.task_id} {...task} />;
-                                    })}
-                                </div>
-                            </td>
-                            <td className="application-board-table-cell">
-                                <div className="row-container">
-                                    {toDoTasks.map((task) => {
-                                        return <TaskCard key={task.task_id} {...task} />;
-                                    })}
-                                </div>
-                            </td>
-                            <td className="application-board-table-cell">
-                                <div className="row-container">
-                                    {doingTasks.map((task) => {
-                                        return <TaskCard key={task.task_id} {...task} />;
-                                    })}
-                                </div>
-                            </td>
-                            <td className="application-board-table-cell">
-                                <div className="row-container">
-                                    {doneTasks.map((task) => {
-                                        return <TaskCard key={task.task_id} {...task} />;
-                                    })}
-                                </div>
-                            </td>
-                            <td className="application-board-table-cell">
-                                <div className="row-container">
-                                    {closedTasks.map((task) => {
-                                        return <TaskCard key={task.task_id} {...task} />;
-                                    })}
-                                </div>
-                            </td>
+                            {/* Open state */}
+
+                            {application ? (
+                                permitOpen ? (
+                                    <td className="application-board-table-cell">
+                                        <div className="row-container">
+                                            {openTasks.map((task) => {
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} />;
+                                            })}
+                                        </div>
+                                    </td>
+                                ) : (
+                                    <td className="application-board-table-cell">
+                                        <div className="row-container">
+                                            {openTasks.map((task) => {
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} />;
+                                            })}
+                                        </div>
+                                    </td>
+                                )
+                            ) : (
+                                <></>
+                            )}
+                            {/* todo tate */}
+                            {application ? (
+                                permitOpen ? (
+                                    <td className="application-board-table-cell">
+                                        <div className="row-container">
+                                            {toDoTasks.map((task) => {
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} />;
+                                            })}
+                                        </div>
+                                    </td>
+                                ) : (
+                                    <td className="application-board-table-cell">
+                                        <div className="row-container">
+                                            {openTasks.map((task) => {
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} />;
+                                            })}
+                                        </div>
+                                    </td>
+                                )
+                            ) : (
+                                <></>
+                            )}
+                            {/* doing state */}
+                            {application ? (
+                                permitDoing ? (
+                                    <td className="application-board-table-cell">
+                                        <div className="row-container">
+                                            {doingTasks.map((task) => {
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} />;
+                                            })}
+                                        </div>
+                                    </td>
+                                ) : (
+                                    <td className="application-board-table-cell">
+                                        <div className="row-container">
+                                            {doingTasks.map((task) => {
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} />;
+                                            })}
+                                        </div>
+                                    </td>
+                                )
+                            ) : (
+                                <></>
+                            )}
+
+                            {/* done state */}
+                            {application ? (
+                                permitDone ? (
+                                    <td className="application-board-table-cell">
+                                        <div className="row-container">
+                                            {doneTasks.map((task) => {
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} />;
+                                            })}
+                                        </div>
+                                    </td>
+                                ) : (
+                                    <td className="application-board-table-cell">
+                                        <div className="row-container">
+                                            {doneTasks.map((task) => {
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} />;
+                                            })}
+                                        </div>
+                                    </td>
+                                )
+                            ) : (
+                                <></>
+                            )}
+
+                            {/* closed state */}
+                            {application ? (
+                                permitDone ? (
+                                    <td className="application-board-table-cell">
+                                        <div className="row-container">
+                                            {closedTasks.map((task) => {
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} />;
+                                            })}
+                                        </div>
+                                    </td>
+                                ) : (
+                                    <td className="application-board-table-cell">
+                                        <div className="row-container">
+                                            {closedTasks.map((task) => {
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} />;
+                                            })}
+                                        </div>
+                                    </td>
+                                )
+                            ) : (
+                                <></>
+                            )}
                         </tr>
                     </tbody>
                 </table>

@@ -18,6 +18,7 @@ import EditTask from "./EditTask";
 import CreatePlan from "./CreatePlan";
 import CreateApplication from "./CreateApplication";
 import CreateTask from "./CreateTask";
+import EditApplication from "./EditApplication";
 
 function App() {
     const appState = {
@@ -142,6 +143,7 @@ function App() {
                             <Route exact path="/user/:username" element={<EditUser />} />
                             <Route exact path="/plan/create" element={<CreatePlan />} />
                             <Route exact path="/application/create" element={<CreateApplication />} />
+                            <Route exact path="/application/:appAcronym/edit" element={<EditApplication />} />
                             <Route exact path="/task/create" element={<CreateTask />} />
                             <Route exact path="/profile/:username" element={<Profile />} />
                             <Route exact path="/user/create" element={<CreateUser />} />

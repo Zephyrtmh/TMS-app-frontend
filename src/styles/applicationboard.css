@@ -35,3 +35,11 @@
     justify-content: flex-start;
     /* width: 200px; */
 }
+
+.plan-detail-cell {
+    display: flex;
+}
+
+#plan-name {
+    font-weight: bold;
+}

@@ -16,6 +16,9 @@ export default function CreateTask() {
     const [taskCreator, setTaskCreator] = useState(appState.username);
     const [plans, setPlans] = useState("");
 
+    const [isError, setIsError] = useState(false);
+    const [successfullyCreated, setSuccessfullyCreated] = useState(false);
+
     const handleTaskNameChange = (e) => {
         setTaskName(e.target.value);
     };
@@ -50,7 +53,7 @@ export default function CreateTask() {
             task_app_acronym: taskAppAcronym,
             task_creator: taskCreator,
             verification: {
-                username: "admin",
+                username: appState.username,
                 isEndPoint: false,
                 userGroupsPermitted: [],
             },
@@ -63,6 +66,8 @@ export default function CreateTask() {
                 setTaskName("");
                 setTaskDescription("");
                 setTaskNotes("");
+
+                setSuccessfullyCreated(true);
             })
             .catch((err) => {
                 console.log(err);
@@ -131,6 +136,10 @@ export default function CreateTask() {
                     <label htmlFor="taskCreator">Task Creator:</label>
                     <input type="text" id="taskCreator" readOnly value={taskCreator} onChange={handleTaskCreatorChange} className="form-control" required />
                 </div>
+                {/* Error message */}
+                {isError ? <div className="error-msg">{errMessage}</div> : <div></div>}
+                {/* success message */}
+                {successfullyCreated ? <div className="success-msg">Successfully created Plan. Create another one.</div> : <div></div>}
 
                 <div className="button-group">
                     <button type="submit" className="submit-button">

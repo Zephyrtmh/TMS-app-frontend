@@ -93,10 +93,6 @@ function ApplicationManagement() {
         navigate("/application/create");
     };
 
-    const handleCreateTaskNavigate = () => {
-        navigate("/task/create");
-    };
-
     const navigate = useNavigate();
 
     if (isLoading) {
@@ -121,6 +117,7 @@ function ApplicationManagement() {
                                 <th>app_Rnumber</th>
                                 <th>app_startdate</th>
                                 <th>app_enddate</th>
+                                <th>app_permit_create</th>
                                 <th>app_permit_open</th>
                                 <th>app_permit_todo</th>
                                 <th>app_permit_doing</th>
@@ -136,6 +133,7 @@ function ApplicationManagement() {
                                     <td>{application.app_Rnumber}</td>
                                     <td>{application.app_startdate.substr(0, 10)}</td>
                                     <td>{application.app_enddate.substr(0, 10)}</td>
+                                    <td>{application.app_permit_create}</td>
                                     <td>{application.app_permit_open}</td>
                                     <td>{application.app_permit_todo}</td>
                                     <td>{application.app_permit_doing}</td>

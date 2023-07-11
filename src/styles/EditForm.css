@@ -102,3 +102,7 @@ input::placeholder {
     justify-content: space-between;
     width: 100%;
 }
+
+.usergroup-select-dropdown-container {
+    max-height: 100px;
+}

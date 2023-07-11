@@ -128,7 +128,7 @@ export default function EditTask() {
             task_owner: appState.username,
             task_createdate: task.task_createdate,
             verification: {
-                username: "admin",
+                username: appState.username,
                 isEndPoint: false,
                 userGroupsPermitted: [],
             },
@@ -141,7 +141,7 @@ export default function EditTask() {
             username: appState.username,
             action: action,
             verification: {
-                username: "admin",
+                username: appState.username,
                 isEndPoint: false,
                 userGroupsPermitted: [],
             },

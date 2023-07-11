@@ -27,6 +27,13 @@ function EditUser() {
 
     const [isLoading, setIsLoading] = useState(true);
 
+    const navigate = useNavigate();
+
+    const { username } = useParams();
+
+    const appState = useContext(AppStateContext);
+    const appDispatch = useContext(DispatchStateContext);
+
     useEffect(() => {
         let isMounted = true;
 
@@ -173,13 +180,6 @@ function EditUser() {
                 }
             });
     };
-
-    const navigate = useNavigate();
-
-    const { username } = useParams();
-
-    const appState = useContext(AppStateContext);
-    const appDispatch = useContext(DispatchStateContext);
 
     if (isLoading) {
         return <Loading />;

@@ -19,6 +19,8 @@ export default function CreatePlan() {
     const [isError, setIsError] = useState(false);
     const [successfullyCreated, setSuccessfullyCreated] = useState(false);
 
+    const appState = useContext(AppStateContext);
+
     //verify user
     useEffect(() => {
         const retrieveData = async () => {
@@ -59,7 +61,7 @@ export default function CreatePlan() {
             plan_enddate: planEnddate,
             plan_app_acronym: application.app_acronym,
             verification: {
-                username: "admin",
+                username: appState.username,
                 isEndPoint: false,
                 userGroupsPermitted: [],
             },
@@ -68,14 +70,16 @@ export default function CreatePlan() {
         axios
             .post("http://localhost:8080/plan/create", data, { withCredentials: true })
             .then(() => {
-                return navigate(`/application/${application.app_acronym}`);
+                setSuccessfullyCreated(true);
             })
             .catch((err) => {
                 console.log(err);
             });
     };
 
-    const handleCancelButton = () => {};
+    const handleCancelButton = () => {
+        return navigate(`/application/${application.app_acronym}`);
+    };
 
     const navigate = useNavigate();
 
@@ -95,7 +99,7 @@ export default function CreatePlan() {
 
                 <div className="form-group">
                     <label htmlFor="startdate">Start Date: </label>
-                    <input type="date" min={appStartdate ? appStartdate.substring(0, 10) : ""} max={appEnddate ? appEnddate.substring(0, 10) : ""} id="startdate" value={planStartdate ? planStartdate.substring(0, 10) : ""} onChange={handlePlanStartDateChange} className="form-control" />
+                    <input type="date" min={appStartdate ? appStartdate.substring(0, 10) : ""} max={appEnddate ? appEnddate.substring(0, 10) : ""} id="startdate" value={planStartdate ? planStartdate.substring(0, 10) : ""} onChange={handlePlanStartDateChange} className="form-control" required />
                 </div>
 
                 <div className="form-group">
@@ -106,12 +110,12 @@ export default function CreatePlan() {
                 {/* Error message */}
                 {isError ? <div className="error-msg">{errMessage}</div> : <div></div>}
                 {/* success message */}
-                {successfullyCreated ? <div className="success-msg">Successfully created User. Create another one.</div> : <div></div>}
+                {successfullyCreated ? <div className="success-msg">Successfully created Plan. Create another one.</div> : <div></div>}
                 <div className="button-group">
                     <button className="cancel-button" onClick={handleCancelButton}>
                         Cancel
                     </button>
-                    <button type="submit" className="submit-button" onClick={handleCreateFormSubmit}>
+                    <button type="submit" className="submit-button" onSubmit={handleCreateFormSubmit}>
                         Submit
                     </button>
                 </div>

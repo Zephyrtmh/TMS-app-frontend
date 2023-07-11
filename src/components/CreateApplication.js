@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
+import AppStateContext from "../AppStateContext";
+import DispatchContext from "../DispatchContext";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateApplication() {
     const [appAcronym, setAppAcronym] = useState("");
@@ -14,6 +17,12 @@ export default function CreateApplication() {
     const [isError, setIsError] = useState(false);
     const [successfullyCreated, setSuccessfullyCreated] = useState(false);
     const [appPermitCreate, setAppPermitCreate] = useState("");
+    const [userGroupsAvailable, setUserGroupsAvailable] = useState([]);
+
+    const appState = useContext(AppStateContext);
+    const appDispatch = useContext(DispatchContext);
+
+    const navigate = useNavigate();
 
     const handleAppPermitCreateChange = (e) => {
         setAppPermitCreate(e.target.value);
@@ -98,6 +107,25 @@ export default function CreateApplication() {
             });
     };
 
+    const handleCancelForm = () => {
+        return navigate("/applicationmanagement");
+    };
+
+    useEffect(() => {
+        let isMounted = true;
+        axios
+            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: [] } }, { withCredentials: true })
+            .then((res) => {
+                if (isMounted) {
+                    setUserGroupsAvailable(res.data);
+                    console.log(res.data);
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }, []);
+
     return (
         <div className="edit-form-container">
             <form onSubmit={handleCreateFormSubmit}>
@@ -124,32 +152,77 @@ export default function CreateApplication() {
 
                 <div className="form-group">
                     <label htmlFor="appEndDate">End Date:</label>
-                    <input type="date" id="appEndDate" value={appEndDate} onChange={handleAppEndDateChange} className="form-control" required />
+                    <input type="date" id="appEndDate" min={appStartDate} value={appEndDate} onChange={handleAppEndDateChange} className="form-control" required />
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="appPermitCreate">Permit Create:</label>
-                    <input type="text" id="appPermitCreate" value={appPermitCreate} onChange={handleAppPermitCreateChange} className="form-control" />
+                    <select type="text" id="appPermitCreate" value={appPermitCreate} onChange={handleAppPermitCreateChange} className="form-control">
+                        <option value=""></option>
+                        {userGroupsAvailable.map((usergroup) => {
+                            return (
+                                <option value={usergroup.userGroupName} key={usergroup.userGroupName}>
+                                    {usergroup.userGroupName}
+                                </option>
+                            );
+                        })}
+                    </select>
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="appPermitOpen">Permit Open:</label>
-                    <input type="text" id="appPermitOpen" value={appPermitOpen} onChange={handleAppPermitOpenChange} className="form-control" />
+                    <select type="text" id="appPermitOpen" value={appPermitOpen} onChange={handleAppPermitOpenChange} className="form-control">
+                        <option value=""></option>
+                        {userGroupsAvailable.map((usergroup) => {
+                            return (
+                                <option value={usergroup.userGroupName} key={usergroup.userGroupName}>
+                                    {usergroup.userGroupName}
+                                </option>
+                            );
+                        })}
+                    </select>
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="appPermitTodo">Permit Todo:</label>
-                    <input type="text" id="appPermitTodo" value={appPermitTodo} onChange={handleAppPermitTodoChange} className="form-control" />
+                    <select type="text" id="appPermitTodo" value={appPermitTodo} onChange={handleAppPermitTodoChange} className="form-control">
+                        <option value=""></option>
+                        {userGroupsAvailable.map((usergroup) => {
+                            return (
+                                <option value={usergroup.userGroupName} key={usergroup.userGroupName}>
+                                    {usergroup.userGroupName}
+                                </option>
+                            );
+                        })}
+                    </select>
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="appPermitDoing">Permit Doing:</label>
-                    <input type="text" id="appPermitDoing" value={appPermitDoing} onChange={handleAppPermitDoingChange} className="form-control" />
+                    <select type="text" id="appPermitDoing" value={appPermitDoing} onChange={handleAppPermitDoingChange} className="form-control">
+                        <option value=""></option>
+                        {userGroupsAvailable.map((usergroup) => {
+                            return (
+                                <option value={usergroup.userGroupName} key={usergroup.userGroupName}>
+                                    {usergroup.userGroupName}
+                                </option>
+                            );
+                        })}
+                    </select>
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="appPermitDone">Permit Done:</label>
-                    <input type="text" id="appPermitDone" value={appPermitDone} onChange={handleAppPermitDoneChange} className="form-control" required />
+                    <select type="text" id="appPermitDone" value={appPermitDone} onChange={handleAppPermitDoneChange} className="form-control">
+                        <option value=""></option>\
+                        {userGroupsAvailable.map((usergroup) => {
+                            return (
+                                <option value={usergroup.userGroupName} key={usergroup.userGroupName}>
+                                    {usergroup.userGroupName}
+                                </option>
+                            );
+                        })}
+                    </select>
                 </div>
 
                 {/* Error message */}
@@ -159,6 +232,9 @@ export default function CreateApplication() {
                 {successfullyCreated ? <div className="success-msg">Application created successfully.</div> : null}
 
                 <div className="button-group">
+                    <button type="cancel" onClick={handleCancelForm} className="cancel-button">
+                        Cancel
+                    </button>
                     <button type="submit" className="submit-button">
                         Create
                     </button>
