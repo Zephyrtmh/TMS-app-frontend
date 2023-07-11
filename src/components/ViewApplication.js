@@ -35,6 +35,10 @@ function ViewApplication() {
         navigate("/plan/create", { state: application });
     };
 
+    const handleCreateTaskNavigate = () => {
+        navigate("/task/create", { state: application });
+    };
+
     useEffect(() => {
         let isMounted = true;
         setIsLoading(true);
@@ -180,8 +184,14 @@ function ViewApplication() {
                             </option>
                         ))}
                     </select>
+
                     <div>
-                        <button onClick={handleCreatePlan}>Create Plan</button>
+                        <div className="create-task-button">
+                            <button onClick={handleCreateTaskNavigate}>Create Task</button>
+                        </div>
+                        <div>
+                            <button onClick={handleCreatePlan}>Create Plan</button>
+                        </div>
                     </div>
                 </div>
             </div>

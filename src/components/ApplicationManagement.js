@@ -8,6 +8,7 @@ import DispatchContext from "../DispatchContext";
 import Loading from "./Loading";
 
 import "../styles/UserManagement.css";
+import "../styles/applicationmanagement.css";
 
 function ApplicationManagement() {
     const appState = useContext(AppStateContext);
@@ -88,8 +89,12 @@ function ApplicationManagement() {
         navigate(`/application/${application.app_acronym}/edit`);
     };
 
-    const handleChangeUserGroupToAdd = (e) => {
-        setUserGroupToAdd(e.target.value);
+    const handleCreateApplicationNavigate = () => {
+        navigate("/application/create");
+    };
+
+    const handleCreateTaskNavigate = () => {
+        navigate("/task/create");
     };
 
     const navigate = useNavigate();
@@ -100,46 +105,54 @@ function ApplicationManagement() {
 
     return (
         <>
-            <div className="user-table-container">
-                <table className="user-table">
-                    <thead>
-                        <tr>
-                            <th>app_acronym</th>
-                            <th>app_description</th>
-                            <th>app_Rnumber</th>
-                            <th>app_startdate</th>
-                            <th>app_enddate</th>
-                            <th>app_permit_open</th>
-                            <th>app_permit_todo</th>
-                            <th>app_permit_doing</th>
-                            <th>app_permit_done</th>
-                            <th>actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {applications.map((application, index) => (
-                            <tr key={index}>
-                                <td>{application.app_acronym}</td>
-                                <td>{application.app_description}</td>
-                                <td>{application.app_Rnumber}</td>
-                                <td>{application.app_startdate.substr(0, 10)}</td>
-                                <td>{application.app_enddate.substr(0, 10)}</td>
-                                <td>{application.app_permit_open}</td>
-                                <td>{application.app_permit_todo}</td>
-                                <td>{application.app_permit_doing}</td>
-                                <td>{application.app_permit_done}</td>
-                                <td>
-                                    <button className="edit-user button" onClick={() => handleNavigateToViewApplication(application)}>
-                                        View
-                                    </button>
-                                    <button className="edit-user button" onClick={() => handleNavigateToEditApplication(application)}>
-                                        Edit
-                                    </button>
-                                </td>
+            <div className="application-management-container">
+                <div className="create-application-and-task-buttons">
+                    <div className="create-application-button">
+                        <button onClick={handleCreateApplicationNavigate}>Create Application</button>
+                    </div>
+                </div>
+
+                <div className="user-table-container">
+                    <table className="user-table">
+                        <thead>
+                            <tr>
+                                <th>app_acronym</th>
+                                <th>app_description</th>
+                                <th>app_Rnumber</th>
+                                <th>app_startdate</th>
+                                <th>app_enddate</th>
+                                <th>app_permit_open</th>
+                                <th>app_permit_todo</th>
+                                <th>app_permit_doing</th>
+                                <th>app_permit_done</th>
+                                <th>actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {applications.map((application, index) => (
+                                <tr key={index}>
+                                    <td>{application.app_acronym}</td>
+                                    <td>{application.app_description}</td>
+                                    <td>{application.app_Rnumber}</td>
+                                    <td>{application.app_startdate.substr(0, 10)}</td>
+                                    <td>{application.app_enddate.substr(0, 10)}</td>
+                                    <td>{application.app_permit_open}</td>
+                                    <td>{application.app_permit_todo}</td>
+                                    <td>{application.app_permit_doing}</td>
+                                    <td>{application.app_permit_done}</td>
+                                    <td>
+                                        <button className="edit-user button" onClick={() => handleNavigateToViewApplication(application)}>
+                                            View
+                                        </button>
+                                        <button className="edit-user button" onClick={() => handleNavigateToEditApplication(application)}>
+                                            Edit
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </>
     );

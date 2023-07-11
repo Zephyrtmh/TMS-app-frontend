@@ -240,6 +240,7 @@ export default function EditTask() {
                         <thead>
                             <tr>
                                 <th>Content</th>
+                                <th>state</th>
                                 <th>Author</th>
                                 <th>Create Datetime</th>
                             </tr>
@@ -250,6 +251,7 @@ export default function EditTask() {
                                     return (
                                         <tr key={index}>
                                             <td>{note.content ? note.content : "blank"}</td>
+                                            <td>{note.state}</td>
                                             <td>{note.author ? note.author : "blank"}</td>
                                             <td>{note.createdate}</td>
                                         </tr>

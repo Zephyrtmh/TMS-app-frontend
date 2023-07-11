@@ -1,0 +1,12 @@
+.application-management-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.create-application-and-task-buttons {
+    width: 400px;
+    align-self: flex-end;
+    padding: 10px;
+    display: flex;
+    justify-content: space-around;
+}
