@@ -232,12 +232,25 @@ function ViewApplication() {
                     </select>
 
                     <div>
-                        <div className="create-task-button">
-                            <button onClick={handleCreateTaskNavigate}>Create Task</button>
-                        </div>
-                        <div>
-                            <button onClick={handleCreatePlan}>Create Plan</button>
-                        </div>
+                        {
+                            appState.userGroups.includes(application.app_permit_create) ? (
+                                <div className="create-task-button">
+                                    <button onClick={handleCreateTaskNavigate}>Create Task</button>
+                                </div>
+                            ) : (
+                                <></>
+                            )
+                        }
+                        {
+                            appState.userGroups.includes(application.app_permit_open) ? (
+                                <div>
+                                    <button onClick={handleCreatePlan}>Create Plan</button>
+                                </div>
+                            ) : (
+                                <></>
+                            )
+                        }
+                        
                     </div>
                 </div>
             </div>

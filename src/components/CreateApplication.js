@@ -89,6 +89,7 @@ export default function CreateApplication() {
             .post("http://localhost:8080/application/create", data, { withCredentials: true })
             .then(() => {
                 setSuccessfullyCreated(true);
+                setIsError(false);
                 //clear fields
                 setAppAcronym("");
                 setAppDescription("");
