@@ -163,7 +163,7 @@ function EditUser() {
             .put(`http://localhost:8080/user/${username}`, data, { withCredentials: true })
             .then((res) => {
                 if (res.data.success) {
-                    console.log(res);
+                    appDispatch({ type: "edit-user", userGroups: userGroupToChangeTo, active: userAccStatus });
                     //redirect to user management
                     return navigate("/usermanagement");
                 }

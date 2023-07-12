@@ -110,7 +110,9 @@ function App() {
                 draft.active = "";
                 draft.userGroups = [];
                 return;
-            case "user":
+            case "edit-user":
+                draft.userGroups = action.userGroups;
+                draft.active = action.active;
                 return;
         }
     }

@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import AppStateContext from "../AppStateContext";
 import DispatchStateContext from "../DispatchContext";
+// import deleteButton from "../../public/images/delete-button.png";
 
 import "../styles/EditForm.css";
 import { addNote, processStringNotesToArray } from "../utils/NotesUtil";
@@ -25,6 +26,7 @@ export default function EditTask() {
     const [isLoading, setIsLoading] = useState(true);
     const [noteInput, setNoteInput] = useState(false);
     const [newNote, setNewNote] = useState("");
+    const [application, setApplication] = useState({});
 
     const [taskNotes, setTaskNotes] = useState("");
 
@@ -37,6 +39,7 @@ export default function EditTask() {
             var task = await axios.post(`http://localhost:8080/task/${taskId}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
 
             var application = await axios.post(`http://localhost:8080/application/${task.data.task_app_acronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
+            setApplication(application);
             var plans = await axios.post(`http://localhost:8080/plan/all?app=${task.data.task_app_acronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
             setPlans(plans.data);
             setTask(task.data);
@@ -127,6 +130,7 @@ export default function EditTask() {
             task_creator: task.task_creator,
             task_owner: appState.username,
             task_createdate: task.task_createdate,
+            oldTask: task,
             verification: {
                 username: appState.username,
                 isEndPoint: false,
@@ -140,6 +144,7 @@ export default function EditTask() {
             taskId: task.task_id,
             username: appState.username,
             action: action,
+            oldTask: task,
             verification: {
                 username: appState.username,
                 isEndPoint: false,
@@ -206,7 +211,7 @@ export default function EditTask() {
     };
 
     return (
-        <div className="edit-form-container">
+        <div className="edit-task-for-container">
             <form>
                 <h1>Promote Task</h1>
                 <div className="task-details">
@@ -227,13 +232,17 @@ export default function EditTask() {
 
                 <div>
                     <label htmlFor="plans">Plan:</label>
-                    <select id="plans" value={selectedPlan} onChange={handleSelectedPlan} className="form-control">
-                        {plans.map((plan) => (
-                            <option key={plan.plan_mvp_name} value={plan.plan_mvp_name}>
-                                {plan.plan_mvp_name}
-                            </option>
-                        ))}
-                    </select>
+                    {task.task_state === "open" || task.task_state === "done" ? (
+                        <select id="plans" value={selectedPlan} onChange={handleSelectedPlan} className="form-control" disabled={(appState.userGroups.includes(application.app_permit_open) && task.task_state === "open") || (appState.userGroups.includes(application.app_permit_done) && task.task_state === "done")}>
+                            {plans.map((plan) => (
+                                <option key={plan.plan_mvp_name} value={plan.plan_mvp_name}>
+                                    {plan.plan_mvp_name}
+                                </option>
+                            ))}
+                        </select>
+                    ) : (
+                        <input type="text" readOnly className="form-control" value={task.task_plan}></input>
+                    )}
                 </div>
                 <div>
                     <table>
@@ -263,14 +272,8 @@ export default function EditTask() {
                         </tbody>
                     </table>
                     {noteInput == false ? <button onClick={addNoteInput}>Add Note</button> : <></>}
-                    <div>
-                        {noteInput == true ? (
-                            <button type="button" onClick={addNoteInput}>
-                                <img src="../public/images/delete-button.png" alt="Button Image" />
-                            </button>
-                        ) : (
-                            <></>
-                        )}
+                    <div style={{ display: "flex" }}>
+                        {noteInput == true ? <img src="/images/deletebutton.jpg" alt="Button Image" onClick={addNoteInput} style={{ width: "30px", height: "30px" }} /> : <></>}
                         {noteInput == true ? <input placeholder="Some note" className="form-control" onChange={handleNoteOnChange} value={newNote}></input> : <></>}
                     </div>
                 </div>

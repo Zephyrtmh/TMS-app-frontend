@@ -84,7 +84,7 @@ export default function CreatePlan() {
     const navigate = useNavigate();
 
     return (
-        <div className="edit-form-container">
+        <div className="edit-task-for-container">
             <form onSubmit={handleCreateFormSubmit}>
                 <h1></h1>
                 <div className="form-group">

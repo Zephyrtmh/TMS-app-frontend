@@ -1,13 +1,14 @@
 import "../styles/taskcard.css";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function TaskCard({ task, application, appState, disabled }) {
     const navigate = useNavigate();
+    const [taskState, setTaskState] = useState(task.task_state);
 
     useEffect(() => {
-        console.log(task, application);
-    }, []);
+        // console.log(task, application);
+    }, [taskState]);
 
     const handlePromoteButtonClick = (taskId) => {
         navigate(`/task/${taskId}?type=promote`, { state: task });
@@ -23,7 +24,7 @@ export default function TaskCard({ task, application, appState, disabled }) {
 
     const isPermitted = (action) => {
         const taskState = task.task_state;
-
+        console.log(task.task_state);
         switch (taskState) {
             case "open":
                 var permittedUserGroup = application.app_permit_open;
@@ -42,6 +43,8 @@ export default function TaskCard({ task, application, appState, disabled }) {
                 break;
             case "todo":
                 var permittedUserGroup = application.app_permit_todo;
+                console.log(appState.userGroups);
+                console.log(permittedUserGroup);
                 if (!appState.userGroups.includes(permittedUserGroup)) {
                     return false;
                 }
@@ -94,8 +97,8 @@ export default function TaskCard({ task, application, appState, disabled }) {
     if (disabled || task.task_state === "closed") {
         return (
             <div className="task-card-container">
-                {console.log("task", task)}
-                {console.log("application", application)}
+                {/* {console.log("task", task)}
+                {console.log("application", application)} */}
                 <div className="colour-bar" style={{ backgroundColor: task.plan_colour }}>
                     {task.task_plan} {application.app_acronym}
                 </div>
@@ -118,10 +121,11 @@ export default function TaskCard({ task, application, appState, disabled }) {
 
     return (
         <div className="task-card-container">
-            {console.log("task", task)}
-            {console.log("application", application)}
-            <div className="colour-bar" style={{ backgroundColor: task.plan_colour }}>
-                {task.task_plan} {application.app_acronym}
+            {/* {console.log("task", task)}
+            {console.log("application", application)} */}
+            <div className="colour-bar" style={{ backgroundColor: task.plan_colour, display: "flex", justifyContent: "space-between" }}>
+                <div>{task.task_plan}</div>
+                <img src="/images/expand.png" style={{ width: "12px", height: "12px" }}></img>
             </div>
             <div className="task-content">
                 <div id="task-id">[ {task.task_id} ]</div>
@@ -129,8 +133,8 @@ export default function TaskCard({ task, application, appState, disabled }) {
                 <div id="task-owner">{task.task_owner}</div>
             </div>
 
-            <div id="task-datetime">Created: {task.task_createdate ? task.task_createdate.substring(0, 16) : ""}</div>
-            {task.task_state !== "open" && task.task_state !== "todo" ? (
+            {/* <div id="task-datetime">Created: {task.task_createdate ? task.task_createdate.substring(0, 16) : ""}</div> */}
+            {isPermitted("demote") ? (
                 <button
                     onClick={() => {
                         if (isPermitted("demote")) {
@@ -145,25 +149,32 @@ export default function TaskCard({ task, application, appState, disabled }) {
             )}
 
             {/* <Link to={{ pathname:`/task/${task.task_id}`,search: "?type=demote"}} state={task}><button>Demote</button></Link> */}
-
-            <button
-                onClick={() => {
-                    if (isPermitted("edit")) {
-                        handleEditButtonClick(task.task_id);
-                    }
-                }}
-            >
-                Edit
-            </button>
-            <button
-                onClick={() => {
-                    if (isPermitted("promote")) {
-                        handlePromoteButtonClick(task.task_id);
-                    }
-                }}
-            >
-                Promote
-            </button>
+            {isPermitted("edit") ? (
+                <button
+                    onClick={() => {
+                        if (isPermitted("edit")) {
+                            handleEditButtonClick(task.task_id);
+                        }
+                    }}
+                >
+                    Edit
+                </button>
+            ) : (
+                <button style={{ backgroundColor: "grey" }}>Edit</button>
+            )}
+            {isPermitted("promote") ? (
+                <button
+                    onClick={() => {
+                        if (isPermitted("promote")) {
+                            handlePromoteButtonClick(task.task_id);
+                        }
+                    }}
+                >
+                    Promote
+                </button>
+            ) : (
+                <button style={{ backgroundColor: "grey" }}>Promote</button>
+            )}
         </div>
     );
 }

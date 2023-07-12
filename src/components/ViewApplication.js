@@ -232,25 +232,20 @@ function ViewApplication() {
                     </select>
 
                     <div>
-                        {
-                            appState.userGroups.includes(application.app_permit_create) ? (
-                                <div className="create-task-button">
-                                    <button onClick={handleCreateTaskNavigate}>Create Task</button>
-                                </div>
-                            ) : (
-                                <></>
-                            )
-                        }
-                        {
-                            appState.userGroups.includes(application.app_permit_open) ? (
-                                <div>
-                                    <button onClick={handleCreatePlan}>Create Plan</button>
-                                </div>
-                            ) : (
-                                <></>
-                            )
-                        }
-                        
+                        {appState.userGroups.includes(application.app_permit_create) ? (
+                            <div className="create-task-button">
+                                <button onClick={handleCreateTaskNavigate}>Create Task</button>
+                            </div>
+                        ) : (
+                            <></>
+                        )}
+                        {appState.userGroups.includes(application.app_permit_open) ? (
+                            <div>
+                                <button onClick={handleCreatePlan}>Create Plan</button>
+                            </div>
+                        ) : (
+                            <></>
+                        )}
                     </div>
                 </div>
             </div>
@@ -290,7 +285,7 @@ function ViewApplication() {
                             )}
                             {/* todo tate */}
                             {application ? (
-                                permitOpen ? (
+                                permitTodo ? (
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
                                             {toDoTasks.map((task) => {

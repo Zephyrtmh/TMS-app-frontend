@@ -11,6 +11,16 @@
     box-shadow: grey 0px 3px 20px;
 }
 
+.edit-task-for-container {
+    width: 800px;
+    margin: 25px auto;
+    padding: 10px 40px 20px 40px;
+    background-color: white;
+    border: none;
+    border-radius: 5px;
+    box-shadow: grey 0px 3px 20px;
+}
+
 /* Form groups */
 .form-group {
     margin-bottom: 20px;
