@@ -57,11 +57,13 @@ function Navbar() {
             <div className="navbar-title" onClick={handleNavigationHome}>
                 Task Management System
             </div>
-            <ul className="navbar-nav">
-                <li className="nav-item" onClick={handleNavigationApplicationManagement}>
-                    Application Management
-                </li>
 
+            <ul className="navbar-nav">
+                {appState.loggedIn && (
+                    <li className="nav-item" onClick={handleNavigationApplicationManagement}>
+                        Application Management
+                    </li>
+                )}
                 {appState.userGroups.includes("admin") && (
                     <li className="nav-item" onClick={handleNavigationUserManagement}>
                         User Management

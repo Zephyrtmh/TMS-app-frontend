@@ -27,6 +27,9 @@ function CreateUser() {
     const [isLoading, setIsLoading] = useState(true);
     const [successfullyCreated, setSuccessfullyCreated] = useState(false);
 
+    const appState = useContext(AppStateContext);
+    const appDispatch = useContext(DispatchStateContext);
+
     useEffect(() => {
         let isMounted = true;
 
@@ -47,9 +50,15 @@ function CreateUser() {
                 })
                 .catch((err) => {
                     if (err.response.data.error.statusCode === 401) {
-                        console.log("ran this");
-                        appDispatch({ type: "logout" });
-                        navigate("/login");
+                        axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                            if (res.status === 200) {
+                                console.log(res.status);
+                                appDispatch({ type: "logout" });
+                                return navigate("/login");
+                            } else if (res.status !== 200) {
+                                return navigate("/login");
+                            }
+                        });
                         return false;
                     } else {
                         let errorMessage = err.response.data.errorMessage;
@@ -90,9 +99,6 @@ function CreateUser() {
                 }
             });
     }, []);
-
-    const appState = useContext(AppStateContext);
-    const appDispatch = useContext(DispatchStateContext);
 
     const handleCancelButton = () => {
         navigate("/usermanagement");

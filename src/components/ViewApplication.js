@@ -32,6 +32,7 @@ function ViewApplication() {
     const [isLoading, setIsLoading] = useState(true);
 
     const [selectedPlans, setSelectedPlans] = useState([]);
+    const [somethingIsExpanded, setSomethingIsExpanded] = useState("");
 
     const navigate = useNavigate();
 
@@ -40,6 +41,7 @@ function ViewApplication() {
     const appState = useContext(AppStateContext);
     const appDispatch = useContext(DispatchStateContext);
 
+    const permitCreate = appState.userGroups.includes(application.app_permit_create);
     const permitOpen = appState.userGroups.includes(application.app_permit_open);
     const permitTodo = appState.userGroups.includes(application.app_permit_todo);
     const permitDoing = appState.userGroups.includes(application.app_permit_doing);
@@ -54,6 +56,10 @@ function ViewApplication() {
         navigate("/task/create", { state: application });
     };
 
+    const checkIfSomethingIsExpanded = () => {
+        return somethingIsExpanded;
+    };
+
     useEffect(() => {
         let isMounted = true;
         setIsLoading(true);
@@ -61,7 +67,7 @@ function ViewApplication() {
         async function syncBackend() {
             //only allow admin users to access
             await axios
-                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: true } }, { withCredentials: true })
+                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: true } }, { withCredentials: true })
                 .then((verified) => {
                     if (verified.data.verified === false) {
                         setIsLoading(false);
@@ -73,8 +79,15 @@ function ViewApplication() {
                 })
                 .catch((err) => {
                     if (err.response.data.error.statusCode === 401) {
-                        appDispatch({ type: "logout" });
-                        navigate("/login");
+                        axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                            if (res.status === 200) {
+                                console.log(res.status);
+                                appDispatch({ type: "logout" });
+                                return navigate("/login");
+                            } else if (res.status !== 200) {
+                                return navigate("/login");
+                            }
+                        });
                     } else {
                         let errorMessage = err.response.data.errorMessage;
                         setErrMessage(errorMessage);
@@ -267,7 +280,7 @@ function ViewApplication() {
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
                                             {openTasks.map((task) => {
-                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} />;
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} checkIfSomethingIsExpanded={checkIfSomethingIsExpanded} setSomethingIsExpanded={setSomethingIsExpanded} />;
                                             })}
                                         </div>
                                     </td>
@@ -275,7 +288,7 @@ function ViewApplication() {
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
                                             {openTasks.map((task) => {
-                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} />;
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} checkIfSomethingIsExpanded={checkIfSomethingIsExpanded} setSomethingIsExpanded={setSomethingIsExpanded} />;
                                             })}
                                         </div>
                                     </td>
@@ -289,7 +302,7 @@ function ViewApplication() {
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
                                             {toDoTasks.map((task) => {
-                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} />;
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} checkIfSomethingIsExpanded={checkIfSomethingIsExpanded} setSomethingIsExpanded={setSomethingIsExpanded} />;
                                             })}
                                         </div>
                                     </td>
@@ -297,7 +310,7 @@ function ViewApplication() {
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
                                             {openTasks.map((task) => {
-                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} />;
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} checkIfSomethingIsExpanded={checkIfSomethingIsExpanded} setSomethingIsExpanded={setSomethingIsExpanded} />;
                                             })}
                                         </div>
                                     </td>
@@ -311,7 +324,7 @@ function ViewApplication() {
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
                                             {doingTasks.map((task) => {
-                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} />;
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} checkIfSomethingIsExpanded={checkIfSomethingIsExpanded} setSomethingIsExpanded={setSomethingIsExpanded} />;
                                             })}
                                         </div>
                                     </td>
@@ -319,7 +332,7 @@ function ViewApplication() {
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
                                             {doingTasks.map((task) => {
-                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} />;
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} checkIfSomethingIsExpanded={checkIfSomethingIsExpanded} setSomethingIsExpanded={setSomethingIsExpanded} />;
                                             })}
                                         </div>
                                     </td>
@@ -334,7 +347,7 @@ function ViewApplication() {
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
                                             {doneTasks.map((task) => {
-                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} />;
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} checkIfSomethingIsExpanded={checkIfSomethingIsExpanded} setSomethingIsExpanded={setSomethingIsExpanded} />;
                                             })}
                                         </div>
                                     </td>
@@ -342,7 +355,7 @@ function ViewApplication() {
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
                                             {doneTasks.map((task) => {
-                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} />;
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} checkIfSomethingIsExpanded={checkIfSomethingIsExpanded} setSomethingIsExpanded={setSomethingIsExpanded} />;
                                             })}
                                         </div>
                                     </td>
@@ -357,7 +370,7 @@ function ViewApplication() {
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
                                             {closedTasks.map((task) => {
-                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} />;
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={false} checkIfSomethingIsExpanded={checkIfSomethingIsExpanded} setSomethingIsExpanded={setSomethingIsExpanded} />;
                                             })}
                                         </div>
                                     </td>
@@ -365,7 +378,7 @@ function ViewApplication() {
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
                                             {closedTasks.map((task) => {
-                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} />;
+                                                return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} checkIfSomethingIsExpanded={checkIfSomethingIsExpanded} setSomethingIsExpanded={setSomethingIsExpanded} />;
                                             })}
                                         </div>
                                     </td>

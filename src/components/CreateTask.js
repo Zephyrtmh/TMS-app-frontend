@@ -2,11 +2,13 @@ import React, { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import AppStateContext from "../AppStateContext";
+import DispatchStateContext from "../DispatchContext";
+import Loading from "./Loading";
 
 export default function CreateTask() {
     const location = useLocation();
     const application = location.state;
-    const appAcronym = application.app_acronym;
+    const appAcronym = application ? application.app_acronym : "";
     const appState = useContext(AppStateContext);
     const [taskName, setTaskName] = useState("");
     const [taskDescription, setTaskDescription] = useState("");
@@ -17,7 +19,11 @@ export default function CreateTask() {
     const [plans, setPlans] = useState("");
 
     const [isError, setIsError] = useState(false);
+    const [errMessage, setErrMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
     const [successfullyCreated, setSuccessfullyCreated] = useState(false);
+
+    const appDispatch = useContext(DispatchStateContext);
 
     const handleTaskNameChange = (e) => {
         setTaskName(e.target.value);
@@ -76,6 +82,52 @@ export default function CreateTask() {
 
     const navigate = useNavigate();
 
+    //verification
+    useEffect(() => {
+        async function syncBackend() {
+            //only allow admin users to access
+            await axios
+                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: [application?.app_permit_create], isEndPoint: true } }, { withCredentials: true })
+                .then((verified) => {
+                    if (verified) {
+                        if (verified.data.verified === false) {
+                            setIsLoading(false);
+                            return false;
+                        } else {
+                            setIsLoading(false);
+                            return true;
+                        }
+                    }
+                })
+                .catch((err) => {
+                    console.log("err", err);
+
+                    if (err.response.status === 401) {
+                        // appDispatch({ type: "logout" });
+                        navigate("/home");
+                        return false;
+                    } else {
+                        let errorMessage = err.response.data.errorMessage;
+                        setErrMessage(errorMessage);
+                        setIsError(true);
+                        setSuccessfullyCreated(false);
+                    }
+                });
+        }
+
+        if (syncBackend() === false) {
+            axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                if (res.status === 200) {
+                    console.log(res.status);
+                    appDispatch({ type: "logout" });
+                    return navigate("/login");
+                } else if (res.status !== 200) {
+                    return navigate("/login");
+                }
+            });
+        }
+    }, []);
+
     useEffect(() => {
         const retrieveData = () => {
             axios
@@ -92,6 +144,10 @@ export default function CreateTask() {
         };
         retrieveData();
     }, []);
+
+    if (isLoading) {
+        return <Loading></Loading>;
+    }
 
     return (
         <div className="edit-form-container">

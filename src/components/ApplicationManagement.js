@@ -26,7 +26,7 @@ function ApplicationManagement() {
             setIsLoading(true);
 
             await axios
-                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: true } }, { withCredentials: true })
+                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: true } }, { withCredentials: true })
                 .then((verified) => {
                     if (verified) {
                         if (verified.data.verified === false) {
@@ -63,7 +63,7 @@ function ApplicationManagement() {
     useEffect(() => {
         setIsLoading(true);
         axios
-            .post("http://localhost:8080/application/all", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: false } }, { withCredentials: true })
+            .post("http://localhost:8080/application/all", { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
             .then((res) => {
                 setApplications(res.data);
             })
@@ -103,9 +103,13 @@ function ApplicationManagement() {
         <>
             <div className="application-management-container">
                 <div className="create-application-and-task-buttons">
-                    <div className="create-application-button">
-                        <button onClick={handleCreateApplicationNavigate}>Create Application</button>
-                    </div>
+                    {appState.userGroups.includes("project lead") ? (
+                        <div className="create-application-button">
+                            <button onClick={handleCreateApplicationNavigate}>Create Application</button>
+                        </div>
+                    ) : (
+                        <></>
+                    )}
                 </div>
 
                 <div className="user-table-container">
