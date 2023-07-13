@@ -58,7 +58,6 @@ export default function CreateTask() {
                 userGroupsPermitted: [],
             },
         };
-        console.log(data);
 
         axios
             .post("http://localhost:8080/task/create", data, { withCredentials: true })
@@ -69,9 +68,7 @@ export default function CreateTask() {
 
                 setSuccessfullyCreated(true);
             })
-            .catch((err) => {
-                console.log(err);
-            });
+            .catch((err) => {});
     };
 
     const navigate = useNavigate();
@@ -81,7 +78,6 @@ export default function CreateTask() {
             axios
                 .post(`http://localhost:8080/plan/all?app=${appAcronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
                 .then((res) => {
-                    console.log(res.data);
                     setPlans(res.data);
                 })
                 .catch((err) => {

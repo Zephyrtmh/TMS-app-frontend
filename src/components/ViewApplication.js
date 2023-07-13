@@ -127,7 +127,7 @@ function ViewApplication() {
             .post(`http://localhost:8080/task/all?app=${appAcronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
             .then((res) => {
                 setTasks(res.data);
-                console.log(res.data);
+
                 res.data.map((task) => {
                     switch (task.task_state) {
                         case "open":
@@ -136,13 +136,13 @@ function ViewApplication() {
                             });
                             break;
                         case "todo":
-                            console.log("todo");
+                            "";
                             setTodoTasks((draft) => {
                                 draft.push(task);
                             });
                             break;
                         case "doing":
-                            console.log("doing");
+                            "";
                             setDoingTasks((draft) => {
                                 draft.push(task);
                             });
@@ -158,13 +158,13 @@ function ViewApplication() {
                             });
                             break;
                         default:
-                            console.log("belongs in none of the states");
+                            "";
                     }
                 });
                 setIsLoading(false);
             })
             .catch((err) => {
-                console.log(err);
+                "";
                 if (err.statusCode === 401) {
                     navigate("/login");
                 }
@@ -176,9 +176,8 @@ function ViewApplication() {
     }, []);
 
     useEffect(() => {
-        console.log(selectedPlans);
+        "";
         for (let plan of selectedPlans) {
-            console.log(plans[plan]);
         }
     }, [selectedPlans]);
 

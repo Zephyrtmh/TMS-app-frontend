@@ -35,11 +35,7 @@ function App() {
         async function syncBackend() {
             //only allow admin users to access
             try {
-                console.log("before running verifyuser");
-                console.log(appState.loggedIn);
-                console.log("test: " + appState.username);
                 var verified = await axios.post("http://localhost:8080/verifyuser", { verification: { username: "", userGroupsPermitted: [], isEndPoint: true } }, { withCredentials: true });
-                console.log(verified);
                 if (verified.data.verified === false) {
                     setIsLoading(false);
                     return false;
@@ -56,7 +52,6 @@ function App() {
                     return verified;
                 }
             } catch (err) {
-                console.log(err);
                 setIsLoading(false);
             }
         }
@@ -67,29 +62,6 @@ function App() {
             isMounted = false;
             setIsLoading(false);
         };
-
-        // const verifyUser = async () => {
-        //     setIsLoading(true);
-
-        //     console.log("im about to verify user");
-        //     try {
-        //         var verified = await axios.post("http://localhost:8080/verifyuser", {}, { withCredentials: true });
-        //     } catch (err) {
-        //         if (err.response.status === 401) {
-        //             return;
-        //         }
-        //     }
-        //     console.log(verified);
-        //     // dispatch({ type: "login", data: verified.data.user });
-        //     setIsLoading(false);
-        // };
-        // try {
-        //     syncBackend();
-        // } catch (err) {
-        //     console.log(err);
-        // } finally {
-        //     setIsLoading(false);
-        // }
     }, []);
 
     function appReducer(draft, action) {
@@ -100,7 +72,6 @@ function App() {
                 draft.username = data.username;
                 draft.active = data.active;
                 data.userGroups.forEach((userGroup) => {
-                    console.log(userGroup);
                     draft.userGroups.push(userGroup);
                 });
                 return;

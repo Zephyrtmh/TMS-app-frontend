@@ -57,7 +57,6 @@ export default function EditApplication() {
             .then((res) => {
                 if (isMounted) {
                     setUserGroupsAvailable(res.data);
-                    console.log(res.data);
                 }
             })
             .catch((err) => {

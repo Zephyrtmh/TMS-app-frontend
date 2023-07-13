@@ -44,7 +44,6 @@ export default function EditTask() {
             setPlans(plans.data);
             setTask(task.data);
             setSelectedPlan(task.data.task_plan);
-            console.log("task.task_plan", task.data.task_plan);
 
             switch (task.data.task_state) {
                 case "open":

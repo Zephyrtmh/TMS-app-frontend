@@ -40,7 +40,7 @@ function UserManagement() {
                     }
                 })
                 .catch((err) => {
-                    console.log(err);
+                    "";
                     if (err.response.data.error.statusCode === 401) {
                         appDispatch({ type: "logout" });
                         navigate("/login");
@@ -120,18 +120,17 @@ function UserManagement() {
             .then((res) => {
                 if (res.data) {
                     if (res.data.success === false) {
-                        console.log(res.data.reason);
                     } else {
                         setSuccessfullyCreated(true);
                         setIsError(false);
                         const newUserGroups = userGroups.concat({ userGroupName: userGroupToAdd });
-                        console.log(newUserGroups);
+
                         setUserGroups(newUserGroups);
                     }
                 }
             })
             .catch((err) => {
-                console.log(err.response.data.error.statusCode);
+                "";
                 if (err.response.data.error.statusCode === 401) {
                     appDispatch({ type: "logout" });
                     navigate("/login");

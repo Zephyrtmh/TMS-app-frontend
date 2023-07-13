@@ -6,22 +6,14 @@ import DispatchContext from "../DispatchContext";
 import AppStateContext from "../AppStateContext";
 
 function Navbar() {
-    useEffect(() => {
-        console.log("usergroup: " + appState.userGroups);
-        console.log(appState);
-    }, [appState]);
+    useEffect(() => {}, [appState]);
 
     const appDispatch = useContext(DispatchContext);
     const appState = useContext(AppStateContext);
 
     const handleLogout = () => {
-        // if (sessionStorage.getItem("loggedIn") !== "true") {
-        //     console.log(sessionStorage.getItem("loggedIn"));
-        //     return;
-        // }
         axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
             if (res.status === 200) {
-                console.log(res.status);
                 appDispatch({ type: "logout" });
                 return navigate("/login");
             } else if (res.status !== 200) {

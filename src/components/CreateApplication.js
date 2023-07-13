@@ -83,7 +83,6 @@ export default function CreateApplication() {
                 userGroupsPermitted: [],
             },
         };
-        console.log(data);
 
         axios
             .post("http://localhost:8080/application/create", data, { withCredentials: true })
@@ -103,7 +102,6 @@ export default function CreateApplication() {
                 setAppPermitCreate("");
             })
             .catch((err) => {
-                console.log(err);
                 setIsError(true);
             });
     };
@@ -119,12 +117,9 @@ export default function CreateApplication() {
             .then((res) => {
                 if (isMounted) {
                     setUserGroupsAvailable(res.data);
-                    console.log(res.data);
                 }
             })
-            .catch((err) => {
-                console.log(err);
-            });
+            .catch((err) => {});
     }, []);
 
     return (

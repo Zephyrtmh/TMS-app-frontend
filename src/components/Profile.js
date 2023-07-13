@@ -32,7 +32,7 @@ function Profile() {
             //only allow admin users to access
             try {
                 var verified = await axios.post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: true } }, { withCredentials: true });
-                console.log("after sending call to verifyuser: " + verified.verified);
+
                 if (verified.data.verified === false) {
                     setIsLoading(false);
                     return false;
@@ -49,11 +49,7 @@ function Profile() {
         if (syncBackend() === false) {
             navigate("/home");
         } else {
-            console.log("verified");
         }
-
-        console.log("appstate" + appState.username + "other one" + username);
-        console.log(appState.username === username);
 
         return () => {
             isMounted = false;
@@ -64,13 +60,13 @@ function Profile() {
         let isMounted = true;
         // try {
         //     axios.get("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: [] } }, { withCredentials: true }).then((res) => {
-        //         console.log(res.data);
+        //         "";
         //         if (isMounted) {
         //             setUserGroupsAvailable(res.data);
         //         }
         //     });
         // } catch (err) {
-        //     console.log(err.status);
+        //     "";
         // }
 
         axios.post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true }).then((res) => {
@@ -80,9 +76,7 @@ function Profile() {
             if (res.data.active === "") {
                 setUserAccStatus("active");
             }
-            console.log("userGroups");
-            console.log(res.data);
-            console.log(res.data.userGroups);
+
             if (isMounted) {
                 setUserGroupForUser(res.data.userGroups);
                 setUserGroupToChangeTo(res.data.userGroups);
@@ -117,12 +111,12 @@ function Profile() {
 
     const handleUserGroupChange = (e) => {
         const selectedValues = Array.from(e.target.selectedOptions).map((option) => option.value);
-        console.log(selectedValues);
+
         setUserGroupToChangeTo(selectedValues);
     };
 
     const handlePasswordCheckBox = (e) => {
-        console.log(!passwordIsChecked);
+        "";
         setPasswordIsChecked(!passwordIsChecked);
     };
 
@@ -145,7 +139,6 @@ function Profile() {
             .put(`http://localhost:8080/user/${username}`, data, { withCredentials: true })
             .then((res) => {
                 if (res.data.success) {
-                    console.log(res.success);
                     navigate("/home");
                 }
             })

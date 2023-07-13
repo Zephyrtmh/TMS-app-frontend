@@ -7,7 +7,7 @@ import DispatchStateContext from "../DispatchContext";
 export default function CreatePlan() {
     const location = useLocation();
     const application = location.state;
-    console.log(location.state);
+    ("");
     const appStartdate = application.app_startdate;
     const appEnddate = application.app_enddate;
 
@@ -24,7 +24,7 @@ export default function CreatePlan() {
     //verify user
     useEffect(() => {
         const retrieveData = async () => {
-            console.log(application);
+            "";
             // axios.post(`http://localhost:8080/application/${location.state}`);
         };
 
@@ -34,7 +34,7 @@ export default function CreatePlan() {
     //retrieve data
     useEffect(() => {
         const retrieveData = async () => {
-            console.log(application);
+            "";
             // axios.post(`http://localhost:8080/application/${location.state}`);
         };
 
@@ -66,14 +66,14 @@ export default function CreatePlan() {
                 userGroupsPermitted: [],
             },
         };
-        console.log(data);
+        ("");
         axios
             .post("http://localhost:8080/plan/create", data, { withCredentials: true })
             .then(() => {
                 setSuccessfullyCreated(true);
             })
             .catch((err) => {
-                console.log(err);
+                "";
             });
     };
 

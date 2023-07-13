@@ -39,7 +39,7 @@ function ApplicationManagement() {
                     }
                 })
                 .catch((err) => {
-                    console.log(err);
+                    "";
                     if (err.response.data.error.statusCode === 401) {
                         appDispatch({ type: "logout" });
                         navigate("/login");

@@ -78,7 +78,7 @@ function EditUser() {
         axios
             .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["admin"] } }, { withCredentials: true })
             .then((res) => {
-                console.log(res.data);
+                "";
                 if (isMounted) {
                     setUserGroupsAvailable(res.data);
                 }
@@ -99,9 +99,6 @@ function EditUser() {
                 if (res.data.active === "") {
                     setUserAccStatus("active");
                 }
-                console.log("userGroups");
-                console.log(res.data);
-                console.log(res.data.userGroups);
                 if (isMounted) {
                     setUserGroupForUser(res.data.userGroups);
                     setUserGroupToChangeTo(res.data.userGroups);
@@ -136,12 +133,10 @@ function EditUser() {
 
     const handleUserGroupChange = (e) => {
         const selectedValues = Array.from(e.target.selectedOptions).map((option) => option.value);
-        console.log(selectedValues);
         setUserGroupToChangeTo(selectedValues);
     };
 
     const handlePasswordCheckBox = (e) => {
-        console.log(!passwordIsChecked);
         setPasswordIsChecked(!passwordIsChecked);
     };
 
@@ -158,7 +153,7 @@ function EditUser() {
                 userGroupsPermitted: ["admin"],
             },
         };
-        console.log(data);
+
         axios
             .put(`http://localhost:8080/user/${username}`, data, { withCredentials: true })
             .then((res) => {

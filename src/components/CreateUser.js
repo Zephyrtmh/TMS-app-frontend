@@ -47,7 +47,7 @@ function CreateUser() {
                 })
                 .catch((err) => {
                     if (err.response.data.error.statusCode === 401) {
-                        console.log("ran this");
+                        ("");
                         appDispatch({ type: "logout" });
                         navigate("/login");
                         return false;
@@ -134,13 +134,13 @@ function CreateUser() {
                 userGroupsPermitted: ["admin"],
             },
         };
-        console.log(data);
+        ("");
 
         axios
             .post(`http://localhost:8080/user/create`, data, { withCredentials: true })
             .then((res) => {
                 if (res.data.success) {
-                    console.log(res.success);
+                    ("");
                     //redirect to user management
                     // navigate("/usermanagement");
                     setSuccessfullyCreated(true);
@@ -148,7 +148,7 @@ function CreateUser() {
                 }
             })
             .catch((err) => {
-                console.log(err);
+                "";
                 if (err.response.data.error.statusCode === 401) {
                     appDispatch({ type: "logout" });
                     navigate("/login");

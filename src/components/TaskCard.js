@@ -7,7 +7,7 @@ export default function TaskCard({ task, application, appState, disabled }) {
     const [taskState, setTaskState] = useState(task.task_state);
 
     useEffect(() => {
-        // console.log(task, application);
+        // "";
     }, [taskState]);
 
     const handlePromoteButtonClick = (taskId) => {
@@ -24,7 +24,7 @@ export default function TaskCard({ task, application, appState, disabled }) {
 
     const isPermitted = (action) => {
         const taskState = task.task_state;
-        console.log(task.task_state);
+
         switch (taskState) {
             case "open":
                 var permittedUserGroup = application.app_permit_open;
@@ -43,8 +43,8 @@ export default function TaskCard({ task, application, appState, disabled }) {
                 break;
             case "todo":
                 var permittedUserGroup = application.app_permit_todo;
-                console.log(appState.userGroups);
-                console.log(permittedUserGroup);
+                "";
+                "";
                 if (!appState.userGroups.includes(permittedUserGroup)) {
                     return false;
                 }
@@ -97,8 +97,8 @@ export default function TaskCard({ task, application, appState, disabled }) {
     if (disabled || task.task_state === "closed") {
         return (
             <div className="task-card-container">
-                {/* {console.log("task", task)}
-                {console.log("application", application)} */}
+                {/* {""}
+                {""} */}
                 <div className="colour-bar" style={{ backgroundColor: task.plan_colour }}>
                     {task.task_plan} {application.app_acronym}
                 </div>
@@ -121,8 +121,8 @@ export default function TaskCard({ task, application, appState, disabled }) {
 
     return (
         <div className="task-card-container">
-            {/* {console.log("task", task)}
-            {console.log("application", application)} */}
+            {/* {""}
+            {""} */}
             <div className="colour-bar" style={{ backgroundColor: task.plan_colour, display: "flex", justifyContent: "space-between" }}>
                 <div>{task.task_plan}</div>
                 <img src="/images/expand.png" style={{ width: "12px", height: "12px" }}></img>
