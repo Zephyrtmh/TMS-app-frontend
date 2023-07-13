@@ -169,6 +169,7 @@ export default function TaskCard({ task, application, appState, disabled, checkI
                             <label htmlFor="task_description">Description:</label>
                             <input id="task_description" type="text" style={{ width: "80%", height: "200px" }} readyOnly value={task.task_description}></input>
                         </div>
+                        <div>Comments:</div>
                         <div>
                             {task.task_notes ? (
                                 processStringNotesToArray(task.task_notes).map((note) => {
