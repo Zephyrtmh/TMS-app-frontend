@@ -8,11 +8,32 @@ export default function TaskCard({ task, application, appState, disabled, checkI
     const navigate = useNavigate();
     const [taskState, setTaskState] = useState(task.task_state);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [notes, setNotes] = useState([]);
+    const [notesToDisplay, setNotesToDisplay] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pagination, setPagination] = useState(0);
+
+    
 
     useEffect(() => {
-        console.log(task);
-        // console.log(task, application);
-    }, [taskState]);
+        var notesArray = processStringNotesToArray(task.task_notes);
+        setNotes(notesArray);
+
+        
+        const itemsPerPage = 5;
+        const totalPages = (notesArray.length % itemsPerPage === 0 ? Math.trunc(notesArray.length/itemsPerPage) : Math.trunc(notesArray.length/itemsPerPage)+1);
+        var pages = []
+        for(let i=0; i< totalPages; i++) {
+            pages.push(i+1);
+        }
+        setPagination(pages);
+        
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        setNotesToDisplay(notesArray.slice(startIndex, endIndex));
+        console.log("notesSliced", notes.slice(startIndex, endIndex))
+            
+    }, [currentPage]);
 
     const handlePromoteButtonClick = (taskId) => {
         navigate(`/task/${taskId}?type=promote`, { state: task });
@@ -26,6 +47,10 @@ export default function TaskCard({ task, application, appState, disabled, checkI
         navigate(`/task/${taskId}?type=demote`, { state: task });
     };
 
+    const handlePageChange = (number) => {
+        setCurrentPage(number)
+    }
+
     const handleExpand = () => {
         console.log("expanded");
         console.log("checkIfSomethingIsExpanded", checkIfSomethingIsExpanded());
@@ -35,6 +60,7 @@ export default function TaskCard({ task, application, appState, disabled, checkI
                 setSomethingIsExpanded("");
             } else {
                 setSomethingIsExpanded(task.task_id);
+                
             }
         }
     };
@@ -164,21 +190,21 @@ export default function TaskCard({ task, application, appState, disabled, checkI
                 </div>
                 <div id="task-owner">Owner: {task.task_owner}</div>
                 {isExpanded ? (
-                    <div>
-                        <div className="form-group">
-                            <label htmlFor="task_description">Description:</label>
-                            <input id="task_description" type="text" style={{ width: "80%", height: "200px" }} readyOnly value={task.task_description}></input>
-                        </div>
-                        <div>Comments:</div>
-                        <div>
+                    <div className="expanded-task-container">
+                    {console.log("notesToDisplay", notesToDisplay)}
+                            <div htmlFor="task-description" className="details-header">Description:</div>
+                            <input id="task-description" type="text" style={{ width: "80%", height: "200px" }} readyOnly value={task.task_description}></input>
+                        
+                        <div className="details-header">Comments:</div>
+                        <div className="notes-container">
                             {task.task_notes ? (
-                                processStringNotesToArray(task.task_notes).map((note) => {
+                                notesToDisplay.map((note) => {
                                     return (
-                                        <div key={task.task_id} style={{ borderStyle: "solid" }} className={note.author === "system" ? "system-note" : ""}>
+                                        <div key={task.task_id}  className={note.author === "system" ? "system-note" : ""}>
                                             <div className="task-note-top">
-                                                <div>{note.author}</div>
-                                                <div>{note.createdate}</div>
-                                                <div>[{note.state}]</div>
+                                                <div className="task-note-top-content">{note.author}</div>
+                                                <div className="task-note-top-content">[{note.state}]</div>
+                                                <div className="task-note-top-content">{note.createdate}</div>
                                             </div>
                                             <div className="task-note-content">{note.content}</div>
                                         </div>
@@ -187,8 +213,18 @@ export default function TaskCard({ task, application, appState, disabled, checkI
                             ) : (
                                 <></>
                             )}
+                            
                         </div>
+                        <div className="pagination-container">
+                            {
+                                pagination.map((number) => {
+                                    return <p onClick={() => {handlePageChange(number)}} className={currentPage === number ? "page-number current-page" : "page-number"} key={number}>{number}</p>
+                                })
+                            }
+                        </div>
+                        
                     </div>
+                    
                 ) : (
                     <></>
                 )}

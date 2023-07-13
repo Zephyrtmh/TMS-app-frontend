@@ -3,10 +3,12 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import AppStateContext from "../AppStateContext";
 import DispatchStateContext from "../DispatchContext";
+
 // import deleteButton from "../../public/images/delete-button.png";
 
 import "../styles/EditForm.css";
 import { addNote, processStringNotesToArray } from "../utils/NotesUtil";
+import Loading from "./Loading";
 
 export default function EditTask() {
     const { taskId } = useParams();
@@ -22,11 +24,14 @@ export default function EditTask() {
     const [task, setTask] = useState({});
     const [plans, setPlans] = useState([]);
     const [selectedPlan, setSelectedPlan] = useState("");
+    const [action, setAction] = useState("");
     const [permission, setPermission] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [noteInput, setNoteInput] = useState(false);
     const [newNote, setNewNote] = useState("");
     const [application, setApplication] = useState({});
+    const [buttonString, setButtonString] = useState("");
+    const [headerString, setHeaderString] = useState("");
 
     const [taskNotes, setTaskNotes] = useState("");
 
@@ -36,6 +41,7 @@ export default function EditTask() {
 
     const retrieveTask = async () => {
         try {
+            setAction( new URLSearchParams(location.search).get("type"));
             var task = await axios.post(`http://localhost:8080/task/${taskId}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
 
             var application = await axios.post(`http://localhost:8080/application/${task.data.task_app_acronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
@@ -72,7 +78,7 @@ export default function EditTask() {
 
     //verify user permission
     useEffect(() => {
-        let isMounted = true;
+        console.log("ran once")
         async function syncBackend() {
             //only allow users to access
             var applicationPermission = await retrieveTask();
@@ -80,10 +86,9 @@ export default function EditTask() {
                 .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: [applicationPermission], isEndPoint: true } }, { withCredentials: true })
                 .then((verified) => {
                     if (verified.data.verified === false) {
-                        setIsLoading(false);
                         return false;
                     } else {
-                        setIsLoading(false);
+                        
                         return true;
                     }
                 })
@@ -105,19 +110,59 @@ export default function EditTask() {
             navigate("/home");
         }
 
-        return () => {
-            isMounted = false;
-        };
     }, []);
 
     useEffect(() => {
         var notes = processStringNotesToArray(task.task_notes);
         setTaskNotes(notes);
+        setHeaderString(geHeaderString())
+        setButtonString(getButtonString())
+        console.log(isLoading)
+        setIsLoading(false);
+
     }, [task]);
 
     const handleCancelButton = () => {
         return navigate(`/application/${task.task_app_acronym}`);
     };
+
+    const getButtonString = () => {
+        var taskState = task.task_state;
+        switch(taskState) {
+            case "open":
+                return "Release";
+            case "todo":
+                return "Promote";
+            case "doing":
+                return "Promote";
+            case "done":
+                return "Approve";
+            default:
+                return "Submit";
+        }
+        
+    }
+
+    const geHeaderString = () => {
+        var taskState = task.task_state;
+        if(action === "demote") {
+            switch(taskState) {
+                case "doing":
+                    return "Return";
+                case "done":
+                    return "Reject";
+                default:
+                    return "Submit";
+            }
+        }
+        else if(action === "promote") {
+            return getButtonString();
+        }
+        else if (action === "edit") {
+            console.log("action is edit")
+            return "Edit";
+        }
+    }
 
     const handleSubmitButton = (e) => {
         e.preventDefault();
@@ -210,10 +255,14 @@ export default function EditTask() {
         setNoteInput(!noteInput);
     };
 
+    if(isLoading) {
+        return <Loading />
+    }
+
     return (
         <div className="edit-task-for-container">
             <form>
-                <h1>Promote Task</h1>
+                <h1>{headerString} Task</h1>
                 <div className="task-details">
                     <div>Task ID: {task.task_id}</div>
                     <div>Task Creator: {task.task_creator}</div>
@@ -234,6 +283,7 @@ export default function EditTask() {
                     <label htmlFor="plans">Plan:</label>
                     {task.task_state === "open" || task.task_state === "done" ? (
                         <select id="plans" value={selectedPlan} onChange={handleSelectedPlan} className="form-control" disabled={(appState.userGroups.includes(application.app_permit_open) && task.task_state === "open") || (appState.userGroups.includes(application.app_permit_done) && task.task_state === "done")}>
+                            <option value=""></option>
                             {plans.map((plan) => (
                                 <option key={plan.plan_mvp_name} value={plan.plan_mvp_name}>
                                     {plan.plan_mvp_name}
@@ -283,8 +333,9 @@ export default function EditTask() {
                     <button className="cancel-button" onClick={handleCancelButton}>
                         Cancel
                     </button>
+                    
                     <button type="submit" className="submit-button" onClick={handleSubmitButton}>
-                        Submit
+                        {buttonString}
                     </button>
                 </div>
             </form>

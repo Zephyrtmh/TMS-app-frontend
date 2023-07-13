@@ -44,6 +44,20 @@
     padding: 4px 2px 2px 6px;
 }
 
+.expanded-task-container{
+    display: flex;
+    flex-direction: column;
+    padding-left: 15px;
+}
+
+.details-header {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    align-self: flex-start;
+    font-weight: bold;
+    
+}
+
 .task-content {
     display: flex;
     /* justify-content: space-around; */
@@ -55,19 +69,57 @@
 }
 .task-note-top {
     display: flex;
-    justify-content: space-between;
-    /* justify-content: space-around; */
-    /* overflow: hidden;
-    white-space: nowrap; */
+    padding-left: 10px;
+    padding-bottom: 5px;
+    width: 500px;
+}
 
-    padding: 10px;
-    width: 55%;
+.task-note-top-content {
+    padding-right: 8px;
+}
+
+.notes-container {
+    min-height: 350px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    justify-content: flex-end;
 }
 
 .task-note-content {
-    display: flex;
+    
+    text-align:  left;
     padding-left: 10px;
-    padding-bottom: 10px;
+    padding-bottom: 20px;
+    width: 80%;
+    
+}
+
+
+
+.pagination-container {
+    padding-left: 10px;
+    display: flex;
+    /* justify-content: space-around; */
+    width: 50%;
+}
+
+.page-number {
+    margin-right: 10px;
+    color: blue;
+}
+
+.current-page{
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.page-number:hover {
+    cursor: pointer;
+}
+
+#task_description {
+    text-align: start;
 }
 
 .system-note {
@@ -81,6 +133,7 @@
 #task-name {
     color: black;
     padding-left: 5px;
+   
     text-overflow: ellipsis;
 }
 

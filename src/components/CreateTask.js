@@ -49,6 +49,10 @@ export default function CreateTask() {
         setTaskCreator(e.target.value);
     };
 
+    const handleCancelButton = () => {
+        return navigate(`/application/${application.app_acronym}`);
+    };
+
     const handleCreateFormSubmit = (e) => {
         e.preventDefault();
         const data = {
@@ -171,6 +175,7 @@ export default function CreateTask() {
                 <div className="form-group">
                     <label htmlFor="taskPlan">Task Plan:</label>
                     <select type="text" id="taskPlan" value={taskPlan} onChange={handleTaskPlanChange} className="form-control">
+                        <option value=""></option>
                         {plans
                             ? plans.map((plan) => {
                                   return (
@@ -198,6 +203,9 @@ export default function CreateTask() {
                 {successfullyCreated ? <div className="success-msg">Successfully created Plan. Create another one.</div> : <div></div>}
 
                 <div className="button-group">
+                    <button className="cancel-button" onClick={handleCancelButton}>
+                        Cancel
+                    </button>
                     <button type="submit" className="submit-button">
                         Create
                     </button>
