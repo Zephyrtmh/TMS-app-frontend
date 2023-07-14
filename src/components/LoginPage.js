@@ -30,8 +30,6 @@ function LoginPage() {
         e.preventDefault();
         setButtonIsClicked(true);
         // Handle login logic here
-        console.log("Username:", username);
-        console.log("Password:", password);
         setShowSuccess(false);
         setShowError(false);
         //send request to backend to login
@@ -74,9 +72,7 @@ function LoginPage() {
 
     return (
         <div className="login-container">
-            <h1>
-                Login
-            </h1>
+            <h1>Login</h1>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Username:</label>
@@ -88,7 +84,9 @@ function LoginPage() {
                 </div>
                 {showError && <p style={{ color: "red" }}>{errorMessage}</p>}
                 {showSuccess && <p style={{ color: "green" }}>Successfully logged in</p>}
-                <button className={`button login ${buttonIsClicked ? "clicked" : ""}`} type="submit">Login</button>
+                <button className={`button login ${buttonIsClicked ? "clicked" : ""}`} type="submit">
+                    Login
+                </button>
             </form>
         </div>
     );
