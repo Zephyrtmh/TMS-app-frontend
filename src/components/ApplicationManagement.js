@@ -102,18 +102,17 @@ function ApplicationManagement() {
     return (
         <>
             <div className="application-management-container">
-                <div className="create-application-and-task-buttons">
-                    {appState.userGroups.includes("project lead") ? (
-                        <div className="create-application-button">
-                            <button onClick={handleCreateApplicationNavigate}>Create Application</button>
-                        </div>
-                    ) : (
-                        <></>
-                    )}
-                </div>
-
-                <div className="user-table-container">
-                    <table className="user-table">
+                <div className="application-table-container">
+                    <div className="create-application-and-task-buttons">
+                        {appState.userGroups.includes("project lead") ? (
+                            <div className="create-application-button">
+                                <button onClick={handleCreateApplicationNavigate}>Create Application</button>
+                            </div>
+                        ) : (
+                            <></>
+                        )}
+                    </div>
+                    <table className="application-table">
                         <thead>
                             <tr>
                                 <th>app_acronym</th>
@@ -143,12 +142,14 @@ function ApplicationManagement() {
                                     <td>{application.app_permit_doing}</td>
                                     <td>{application.app_permit_done}</td>
                                     <td>
-                                        <button className="edit-user button" onClick={() => handleNavigateToViewApplication(application)}>
-                                            View
-                                        </button>
-                                        <button className="edit-user button" onClick={() => handleNavigateToEditApplication(application)}>
-                                            Edit
-                                        </button>
+                                        <div className="edit-view-button-container">
+                                            <button className="edit-user button" onClick={() => handleNavigateToViewApplication(application)}>
+                                                View
+                                            </button>
+                                            <button className="edit-user button" onClick={() => handleNavigateToEditApplication(application)}>
+                                                Edit
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

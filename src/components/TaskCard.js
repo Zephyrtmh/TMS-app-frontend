@@ -12,27 +12,52 @@ export default function TaskCard({ task, application, appState, disabled, checkI
     const [notesToDisplay, setNotesToDisplay] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pagination, setPagination] = useState(0);
+    const [mouseXPer, setMouseXPer] = useState(0);
+    const [mouseYPer, setMouseYPer] = useState(0);
 
-    
+    // useEffect(() => {
+    //     var notesArray = processStringNotesToArray(task.task_notes);
+    //     console.log("task.task_notes", task.task_notes);
+    //     setNotes(notesArray);
+
+    //     const itemsPerPage = 5;
+    //     const totalPages = notesArray.length % itemsPerPage === 0 ? Math.trunc(notesArray.length / itemsPerPage) : Math.trunc(notesArray.length / itemsPerPage) + 1;
+    //     var pages = [];
+    //     for (let i = 0; i < totalPages; i++) {
+    //         pages.push(i + 1);
+    //     }
+    //     setPagination(pages);
+
+    //     // const startIndex = (currentPage - 1) * itemsPerPage;
+    //     // const endIndex = startIndex + itemsPerPage;
+    //     const startIndex = Math.max(0, notesArray.length - currentPage * itemsPerPage);
+    //     console.log("itemsPerPage", itemsPerPage);
+    //     console.log("currentPage", currentPage);
+    //     console.log("startIndex", startIndex);
+    //     const endIndex = Math.max(0, notesArray.length - (currentPage - 1) * itemsPerPage);
+    //     console.log("endIndex", endIndex);
+
+    //     setNotesToDisplay(notesArray.slice(startIndex, endIndex));
+    //     console.log("notesArray.slice(startIndex, endIndex)", notesArray.slice(startIndex, endIndex));
+    // }, []);
 
     useEffect(() => {
         var notesArray = processStringNotesToArray(task.task_notes);
         setNotes(notesArray);
 
-        
         const itemsPerPage = 5;
-        const totalPages = (notesArray.length % itemsPerPage === 0 ? Math.trunc(notesArray.length/itemsPerPage) : Math.trunc(notesArray.length/itemsPerPage)+1);
-        var pages = []
-        for(let i=0; i< totalPages; i++) {
-            pages.push(i+1);
+        const totalPages = notesArray.length % itemsPerPage === 0 ? Math.trunc(notesArray.length / itemsPerPage) : Math.trunc(notesArray.length / itemsPerPage) + 1;
+        var pages = [];
+        for (let i = 0; i < totalPages; i++) {
+            pages.push(i + 1);
         }
         setPagination(pages);
-        
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
+
+        // const startIndex = (currentPage - 1) * itemsPerPage;
+        // const endIndex = startIndex + itemsPerPage;
+        const startIndex = Math.max(0, notesArray.length - currentPage * itemsPerPage);
+        const endIndex = Math.max(0, notesArray.length - (currentPage - 1) * itemsPerPage);
         setNotesToDisplay(notesArray.slice(startIndex, endIndex));
-        console.log("notesSliced", notes.slice(startIndex, endIndex))
-            
     }, [currentPage]);
 
     const handlePromoteButtonClick = (taskId) => {
@@ -48,10 +73,10 @@ export default function TaskCard({ task, application, appState, disabled, checkI
     };
 
     const handlePageChange = (number) => {
-        setCurrentPage(number)
-    }
+        setCurrentPage(number);
+    };
 
-    const handleExpand = () => {
+    const handleExpand = (event) => {
         console.log("expanded");
         console.log("checkIfSomethingIsExpanded", checkIfSomethingIsExpanded());
         if (checkIfSomethingIsExpanded() === "" || checkIfSomethingIsExpanded() === task.task_id) {
@@ -60,14 +85,14 @@ export default function TaskCard({ task, application, appState, disabled, checkI
                 setSomethingIsExpanded("");
             } else {
                 setSomethingIsExpanded(task.task_id);
-                
+                setMouseXPer((event.clientX / window.innerWidth) * 100);
+                setMouseYPer((event.clientY / window.innerHeight) * 100);
             }
         }
     };
 
     const isPermitted = (action) => {
         const taskState = task.task_state;
-        console.log(task.task_state);
         switch (taskState) {
             case "open":
                 var permittedUserGroup = application.app_permit_open;
@@ -86,8 +111,6 @@ export default function TaskCard({ task, application, appState, disabled, checkI
                 break;
             case "todo":
                 var permittedUserGroup = application.app_permit_todo;
-                console.log(appState.userGroups);
-                console.log(permittedUserGroup);
                 if (!appState.userGroups.includes(permittedUserGroup)) {
                     return false;
                 }
@@ -177,7 +200,7 @@ export default function TaskCard({ task, application, appState, disabled, checkI
 
     return (
         <div className="task-card-container-container">
-            <div className={isExpanded ? "task-card-container-expanded" : "task-card-container"}>
+            <div className={isExpanded ? (mouseXPer > 50 ? "task-card-container-expanded-left" : "task-card-container-expanded-right") : "task-card-container"}>
                 {/* {console.log("task", task)}
             {console.log("application", application)} */}
                 <div className="colour-bar" style={{ backgroundColor: task.plan_colour, display: "flex", justifyContent: "space-between" }}>
@@ -191,40 +214,55 @@ export default function TaskCard({ task, application, appState, disabled, checkI
                 <div id="task-owner">Owner: {task.task_owner}</div>
                 {isExpanded ? (
                     <div className="expanded-task-container">
-                    {console.log("notesToDisplay", notesToDisplay)}
-                            <div htmlFor="task-description" className="details-header">Description:</div>
-                            <input id="task-description" type="text" style={{ width: "80%", height: "200px" }} readyOnly value={task.task_description}></input>
-                        
+                        {console.log("notesToDisplay", notesToDisplay)}
+                        <div htmlFor="task-description" className="details-header">
+                            Description:
+                        </div>
+                        <div id="task-description" type="text" style={{ width: "90%", maxHeight: "200px", textAlign: "left", verticalAlign: "top" }}>
+                            {task.task_description}
+                        </div>
+
                         <div className="details-header">Comments:</div>
                         <div className="notes-container">
                             {task.task_notes ? (
                                 notesToDisplay.map((note) => {
                                     return (
-                                        <div key={task.task_id}  className={note.author === "system" ? "system-note" : ""}>
+                                        <div key={task.task_id} className={note.author === "system" ? "system-note" : ""}>
                                             <div className="task-note-top">
-                                                <div className="task-note-top-content">{note.author}</div>
-                                                <div className="task-note-top-content">[{note.state}]</div>
-                                                <div className="task-note-top-content">{note.createdate}</div>
+                                                <div className="task-note-top-content" id="note-author">
+                                                    {note.author}
+                                                </div>
+                                                <div className="task-note-top-content" id="note-state">
+                                                    [ {note.state} ]
+                                                </div>
+                                                <div className="task-note-top-content" id="note-datetime">
+                                                    {note.createdate}
+                                                </div>
                                             </div>
                                             <div className="task-note-content">{note.content}</div>
                                         </div>
                                     );
                                 })
                             ) : (
-                                <></>
+                                <>No Notes</>
                             )}
-                            
                         </div>
                         <div className="pagination-container">
-                            {
-                                pagination.map((number) => {
-                                    return <p onClick={() => {handlePageChange(number)}} className={currentPage === number ? "page-number current-page" : "page-number"} key={number}>{number}</p>
-                                })
-                            }
+                            {pagination.map((number) => {
+                                return (
+                                    <p
+                                        onClick={() => {
+                                            handlePageChange(number);
+                                        }}
+                                        className={currentPage === number ? "page-number current-page" : "page-number"}
+                                        key={number}
+                                    >
+                                        {number}
+                                    </p>
+                                );
+                            })}
                         </div>
-                        
                     </div>
-                    
                 ) : (
                     <></>
                 )}

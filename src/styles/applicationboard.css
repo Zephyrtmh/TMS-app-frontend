@@ -1,3 +1,24 @@
+/* Hide the default scrollbar */
+::-webkit-scrollbar {
+    width: 8px; /* Set the width of the scrollbar */
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Set the background color of the track */
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background-color: #888; /* Set the color of the scrollbar handle */
+    border-radius: 4px; /* Apply a border radius to create a curve */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Set the color of the scrollbar handle on hover */
+}
+
 .application-board-container {
     display: flex;
     flex-direction: column;
@@ -9,13 +30,35 @@
     display: flex;
     width: 100vw;
     justify-content: space-around;
-
+    margin-bottom: 20px;
     /* padding-right: 50; */
 }
 
 .application-board-header-right {
     display: flex;
+    justify-content: flex-end;
+    width: 800px;
+    padding-top: 10px;
+}
+
+.plan-detail-container {
+    width: 400px;
+}
+
+option {
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.plan-list {
+    width: 200px;
+}
+
+.plan-detail-cell {
+    display: flex;
     justify-content: space-between;
+    padding-right: 50px;
 }
 
 .application-board-table {
@@ -25,7 +68,7 @@
 
 .application-board-table-cell {
     vertical-align: top;
-    width: 200px;
+    min-width: 240px;
 }
 
 .row-container {
@@ -36,10 +79,19 @@
     /* width: 200px; */
 }
 
-.plan-detail-cell {
-    display: flex;
+th {
+    text-align: center;
+}
+
+.application-board-column-header {
+    /* border-style: solid; */
+    /* width: 100px; */
 }
 
 #plan-name {
     font-weight: bold;
+    width: 120px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }

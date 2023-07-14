@@ -3,34 +3,72 @@
 }
 
 .task-card-container {
-    padding: 0 0 6px 0;
-    background-color: aliceblue;
+    padding: 0 0 12px 0;
+    background-color: #f3f0e4;
     border-style: solid;
     z-index: 1;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
     width: 250px;
     height: 110px;
-    border-width: 1.5px;
+    border-width: 2px;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: hidden;
+
+    /* for animation */
+    /* animation-duration: 1s;
+    animation-fill-mode: forwards; */
+    /* transition: width 0.1s ease, height 0.1s ease-in-out; */
 }
 
-.task-card-container-expanded {
+.task-card-container-expanded-right {
     padding: 0 0 6px 0;
-    background-color: aliceblue;
+    background-color: #f3f0e4;
     position: relative;
+    z-index: 2;
+    border-style: solid;
+    margin-bottom: 2px;
+    min-width: 500px;
+    min-height: 650px;
+    border-width: 2px;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.402);
+    /* transition: width 0.1s ease-in-out, height 0.1s ease-in-out; */
+    /* for animation */
+    /* animation-name: expand; */
+}
+
+/* @keyframes expand {
+    from {
+        width: 250px;
+    }
+    to {
+        width: 500px;
+    }
+} */
+
+.task-card-container-expanded-left {
+    padding: 0 0 6px 0;
+    background-color: #f3f0e4;
+    position: relative;
+    /* top: -500px; */
+    left: -250px;
     z-index: 2;
     border-style: solid;
     margin-bottom: 2px;
     width: 500px;
     /* height: 500px; */
-    border-width: 1.5px;
+    border-width: 2px;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: hidden;
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.402);
+    /* transition: 0.1s ease-in; */
 }
 
 .colour-bar {
@@ -39,12 +77,12 @@
     height: 15px;
     background-color: white;
     border-bottom-style: solid;
-    border-bottom-width: 1.5px;
+    border-bottom-width: 2px;
     align-items: center;
     padding: 4px 2px 2px 6px;
 }
 
-.expanded-task-container{
+.expanded-task-container {
     display: flex;
     flex-direction: column;
     padding-left: 15px;
@@ -55,7 +93,6 @@
     padding-bottom: 10px;
     align-self: flex-start;
     font-weight: bold;
-    
 }
 
 .task-content {
@@ -63,23 +100,37 @@
     /* justify-content: space-around; */
     overflow: hidden;
     white-space: nowrap;
-
-    padding: 10px;
+    text-overflow: ellipsis;
+    padding: 10px 0px 6px 10px;
     width: 90%;
+    min-height: 20px;
 }
 .task-note-top {
     display: flex;
     padding-left: 10px;
     padding-bottom: 5px;
-    width: 500px;
+    min-width: 500px;
+    border-left-style: solid;
 }
 
 .task-note-top-content {
     padding-right: 8px;
 }
 
+#note-author {
+    font-weight: bold;
+}
+
+#note-state {
+}
+
+#note-datetime {
+    color: grey;
+    opacity: 80%;
+}
+
 .notes-container {
-    min-height: 350px;
+    min-height: 250px;
     display: flex;
     flex-direction: column-reverse;
     align-items: flex-start;
@@ -87,15 +138,12 @@
 }
 
 .task-note-content {
-    
-    text-align:  left;
+    text-align: left;
     padding-left: 10px;
-    padding-bottom: 20px;
-    width: 80%;
-    
+    width: 85%;
+    border-left-style: solid;
+    margin-bottom: 10px;
 }
-
-
 
 .pagination-container {
     padding-left: 10px;
@@ -109,7 +157,7 @@
     color: blue;
 }
 
-.current-page{
+.current-page {
     font-weight: bold;
     text-decoration: underline;
 }
@@ -131,9 +179,9 @@
 }
 
 #task-name {
+    overflow-x: hidden;
     color: black;
     padding-left: 5px;
-   
     text-overflow: ellipsis;
 }
 
@@ -141,6 +189,7 @@
     color: green;
     align-self: flex-start;
     padding-left: 10px;
+    padding-bottom: 4px;
 }
 
 #task-datetime {

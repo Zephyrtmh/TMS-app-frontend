@@ -140,7 +140,6 @@ function ViewApplication() {
             .post(`http://localhost:8080/task/all?app=${appAcronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
             .then((res) => {
                 setTasks(res.data);
-                console.log(res.data);
                 res.data.map((task) => {
                     switch (task.task_state) {
                         case "open":
@@ -149,13 +148,11 @@ function ViewApplication() {
                             });
                             break;
                         case "todo":
-                            console.log("todo");
                             setTodoTasks((draft) => {
                                 draft.push(task);
                             });
                             break;
                         case "doing":
-                            console.log("doing");
                             setDoingTasks((draft) => {
                                 draft.push(task);
                             });
@@ -197,9 +194,10 @@ function ViewApplication() {
 
     const handleSelectPlan = (e) => {
         var plans = Array.from(e.target.selectedOptions).map((option) => option.value);
-        setTimeout(() => {
-            setSelectedPlans(plans);
-        }, 2000);
+        setSelectedPlans(plans);
+        // setTimeout(() => {
+
+        // }, 2000);
     };
 
     if (isLoading) {
@@ -216,26 +214,25 @@ function ViewApplication() {
                         <div>End date: {application.app_enddate ? application.app_enddate.substring(0, 10) : ""}</div>
                     </div>
                 </div>
-                {selectedPlans.length > 0 ? (
-                    <div className="plan-detail-container">
-                        {selectedPlans.map((plan) => {
-                            let plan_ = plans[plan];
-                            return (
-                                <div className="plan-detail-cell" key={plan_.plan_mvp_name}>
-                                    <div id="plan-name">{plan_.plan_mvp_name}</div>
-                                    <div>
-                                        &nbsp;&nbsp;[{plan_.plan_startdate.substring(0, 10)} -&gt; {plan_.plan_enddate.substring(0, 10)}]
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                ) : (
-                    <></>
-                )}
-
                 <div className="application-board-header-right">
-                    <select id="groups" onChange={handleSelectPlan} multiple className="form-control">
+                    {selectedPlans.length > 0 ? (
+                        <div className="plan-detail-container">
+                            {selectedPlans.map((plan) => {
+                                let plan_ = plans[plan];
+                                return (
+                                    <div className="plan-detail-cell" key={plan_.plan_mvp_name}>
+                                        <div id="plan-name">{plan_.plan_mvp_name}</div>
+                                        <div>
+                                            &nbsp;&nbsp;[{plan_.plan_startdate.substring(0, 10)} -&gt; {plan_.plan_enddate.substring(0, 10)}]
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="plan-detail-container"></div>
+                    )}
+                    <select id="groups" onChange={handleSelectPlan} multiple className="form-control plan-list">
                         {/* <option>All plans</option> */}
                         {Object.values(plans).map((plan) => (
                             <option key={plan.plan_mvp_name} value={plan.plan_mvp_name} style={{ backgroundColor: plan.plan_colour ? plan.plan_colour : "white" }}>
@@ -266,11 +263,21 @@ function ViewApplication() {
                 <table className="application-board-table">
                     <tbody>
                         <tr>
-                            <th>Open</th>
-                            <th>Todo</th>
-                            <th>Doing</th>
-                            <th>Done</th>
-                            <th>Closed</th>
+                            <th>
+                                <h2 className="application-board-column-header">OPEN</h2>
+                            </th>
+                            <th>
+                                <h2 className="application-board-column-header">TODO</h2>
+                            </th>
+                            <th>
+                                <h2 className="application-board-column-header">DOING</h2>
+                            </th>
+                            <th>
+                                <h2 className="application-board-column-header">DONE</h2>
+                            </th>
+                            <th>
+                                <h2 className="application-board-column-header">CLOSED</h2>
+                            </th>
                         </tr>
                         <tr>
                             {/* Open state */}

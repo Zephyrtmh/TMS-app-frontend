@@ -24,7 +24,7 @@ export default function EditTask() {
     const [task, setTask] = useState({});
     const [plans, setPlans] = useState([]);
     const [selectedPlan, setSelectedPlan] = useState("");
-    const [action, setAction] = useState("");
+    const [action, setAction] = useState(new URLSearchParams(location.search).get("type"));
     const [permission, setPermission] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [noteInput, setNoteInput] = useState(false);
@@ -39,20 +39,80 @@ export default function EditTask() {
 
     const navigate = useNavigate();
 
+    var taskGlobal;
+
+    const getButtonString = (taskData) => {
+        var taskState = taskData.task_state;
+        if (action === "demote") {
+            switch (taskState) {
+                case "doing":
+                    return "Return";
+                case "done":
+                    return "Reject";
+                default:
+                    return "Submit";
+            }
+        } else if (action === "promote") {
+            switch (taskState) {
+                case "open":
+                    return "Release";
+                case "todo":
+                    return "Promote";
+                case "doing":
+                    return "Promote";
+                case "done":
+                    return "Approve";
+                default:
+                    return "Submit";
+            }
+        } else if (action === "edit") {
+            return "Submit";
+        }
+    };
+
+    const getHeaderString = (taskData) => {
+        var taskState = taskData.task_state;
+
+        if (action === "demote") {
+            switch (taskState) {
+                case "doing":
+                    return "Return";
+                case "done":
+                    return "Reject";
+                default:
+                    return "Submit";
+            }
+        } else if (action === "promote") {
+            return getButtonString(taskData);
+        } else if (action === "edit") {
+            console.log("action is edit");
+            return "Edit";
+        } else {
+            return "huh";
+        }
+    };
+
     const retrieveTask = async () => {
         try {
-            setAction( new URLSearchParams(location.search).get("type"));
-            var task = await axios.post(`http://localhost:8080/task/${taskId}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
-
-            var application = await axios.post(`http://localhost:8080/application/${task.data.task_app_acronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
+            var task_ = await axios.post(`http://localhost:8080/task/${taskId}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
+            taskGlobal = task_;
+            var application = await axios.post(`http://localhost:8080/application/${task_.data.task_app_acronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
             setApplication(application);
-            var plans = await axios.post(`http://localhost:8080/plan/all?app=${task.data.task_app_acronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
+            var plans = await axios.post(`http://localhost:8080/plan/all?app=${task_.data.task_app_acronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
             setPlans(plans.data);
-            setTask(task.data);
-            setSelectedPlan(task.data.task_plan);
-            console.log("task.task_plan", task.data.task_plan);
+            setTask(task_.data);
+            console.log(task_.data);
+            setHeaderString(getHeaderString(task_.data));
+            console.log("getHeaderString(task__.data)", getHeaderString(task_.data));
+            setButtonString(getButtonString(task_.data));
+            console.log("getButtonString(task_.data)", getButtonString(task_.data));
+            var notes = processStringNotesToArray(task_.data.task_notes);
+            setTaskNotes(notes);
+            console.log("something 4");
+            setSelectedPlan(task_.data.task_plan);
+            console.log("task_.data", task_.data);
 
-            switch (task.data.task_state) {
+            switch (task_.data.task_state) {
                 case "open":
                     setPermission(application.data.app_permit_open);
                     return application.data.app_permit_open;
@@ -76,95 +136,12 @@ export default function EditTask() {
         }
     };
 
-    //verify user permission
-    useEffect(() => {
-        console.log("ran once")
-        async function syncBackend() {
-            //only allow users to access
-            var applicationPermission = await retrieveTask();
-            await axios
-                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: [applicationPermission], isEndPoint: true } }, { withCredentials: true })
-                .then((verified) => {
-                    if (verified.data.verified === false) {
-                        return false;
-                    } else {
-                        
-                        return true;
-                    }
-                })
-                .catch((err) => {
-                    console.log(err);
-                    if (err.response.data.error.statusCode === 401) {
-                        // appDispatch({ type: "logout" });
-                        navigate("/home");
-                    } else {
-                        let errorMessage = err.response.data.errorMessage;
-                        setErrMessage(errorMessage);
-                        setIsError(true);
-                        setSuccessfullyEdit(false);
-                    }
-                });
-        }
-
-        if (syncBackend() === false) {
-            navigate("/home");
-        }
-
-    }, []);
-
-    useEffect(() => {
-        var notes = processStringNotesToArray(task.task_notes);
-        setTaskNotes(notes);
-        setHeaderString(geHeaderString())
-        setButtonString(getButtonString())
-        console.log(isLoading)
-        setIsLoading(false);
-
-    }, [task]);
-
     const handleCancelButton = () => {
         return navigate(`/application/${task.task_app_acronym}`);
     };
 
-    const getButtonString = () => {
-        var taskState = task.task_state;
-        switch(taskState) {
-            case "open":
-                return "Release";
-            case "todo":
-                return "Promote";
-            case "doing":
-                return "Promote";
-            case "done":
-                return "Approve";
-            default:
-                return "Submit";
-        }
-        
-    }
-
-    const geHeaderString = () => {
-        var taskState = task.task_state;
-        if(action === "demote") {
-            switch(taskState) {
-                case "doing":
-                    return "Return";
-                case "done":
-                    return "Reject";
-                default:
-                    return "Submit";
-            }
-        }
-        else if(action === "promote") {
-            return getButtonString();
-        }
-        else if (action === "edit") {
-            console.log("action is edit")
-            return "Edit";
-        }
-    }
-
     const handleSubmitButton = (e) => {
+        console.log("button pressed");
         e.preventDefault();
         const data = {
             task_name: task.task_name,
@@ -182,9 +159,6 @@ export default function EditTask() {
                 userGroupsPermitted: [],
             },
         };
-        console.log(data);
-        const action = new URLSearchParams(location.search).get("type");
-        console.log(action);
         const actionData = {
             taskId: task.task_id,
             username: appState.username,
@@ -196,7 +170,6 @@ export default function EditTask() {
                 userGroupsPermitted: [],
             },
         };
-        console.log(actionData);
 
         try {
             axios
@@ -255,8 +228,119 @@ export default function EditTask() {
         setNoteInput(!noteInput);
     };
 
-    if(isLoading) {
-        return <Loading />
+    const handlePageChange = (number) => {
+        setCurrentPage(number);
+    };
+
+    //verify user permission
+    useEffect(() => {
+        console.log("user verified 1");
+        async function syncBackend() {
+            //only allow users to access
+            var applicationPermission = await retrieveTask();
+            axios
+                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: [applicationPermission], isEndPoint: true } }, { withCredentials: true })
+                .then((verified) => {
+                    if (verified.data.verified === false) {
+                        axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                            if (res.status === 200) {
+                                console.log(res.status);
+                                appDispatch({ type: "logout" });
+                                return navigate("/login");
+                            } else if (res.status !== 200) {
+                                return navigate("/login");
+                            }
+                        });
+                        return false;
+                    } else {
+                        // var notes = processStringNotesToArray(task.task_notes);
+                        // setTaskNotes(notes);
+                        // setHeaderString(geHeaderString());
+                        // setButtonString(getButtonString());
+
+                        setIsLoading(false);
+                        console.log("user verified 2");
+                        return true;
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    if (err.response.data.error.statusCode === 401) {
+                        axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                            if (res.status === 200) {
+                                console.log(res.status);
+                                appDispatch({ type: "logout" });
+                                return navigate("/login");
+                            } else if (res.status !== 200) {
+                                return navigate("/login");
+                            }
+                        });
+                    } else {
+                        let errorMessage = err.response.data.errorMessage;
+                        setErrMessage(errorMessage);
+                        setIsError(true);
+                        setSuccessfullyEdit(false);
+                    }
+                });
+        }
+
+        if (syncBackend() === false) {
+            navigate("/home");
+        }
+    }, []);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [notes, setNotes] = useState([]);
+    const [pagination, setPagination] = useState(0);
+    const [notesToDisplay, setNotesToDisplay] = useState([]);
+    useEffect(() => {
+        var notesArray = processStringNotesToArray(task.task_notes);
+        console.log("task", task);
+        setNotes(notesArray);
+
+        const itemsPerPage = 5;
+        const totalPages = notesArray.length % itemsPerPage === 0 ? Math.trunc(notesArray.length / itemsPerPage) : Math.trunc(notesArray.length / itemsPerPage) + 1;
+        var pages = [];
+        for (let i = 0; i < totalPages; i++) {
+            pages.push(i + 1);
+        }
+        setPagination(pages);
+
+        const startIndex = Math.max(0, notesArray.length - currentPage * itemsPerPage);
+        const endIndex = Math.max(0, notesArray.length - (currentPage - 1) * itemsPerPage);
+        setNotesToDisplay(notesArray.slice(startIndex, endIndex));
+    }, [currentPage, task]);
+
+    // useEffect(() => {
+    //     var notesArray = processStringNotesToArray(task.task_notes);
+    //     setNotes(notesArray);
+
+    //     const itemsPerPage = 5;
+    //     const totalPages = notesArray.length % itemsPerPage === 0 ? Math.trunc(notesArray.length / itemsPerPage) : Math.trunc(notesArray.length / itemsPerPage) + 1;
+    //     var pages = [];
+    //     for (let i = 0; i < totalPages; i++) {
+    //         pages.push(i + 1);
+    //     }
+    //     setPagination(pages);
+
+    //     // const startIndex = (currentPage - 1) * itemsPerPage;
+    //     // const endIndex = startIndex + itemsPerPage;
+    //     const startIndex = Math.max(0, notesArray.length - currentPage * itemsPerPage);
+    //     const endIndex = Math.max(0, notesArray.length - (currentPage - 1) * itemsPerPage);
+    //     setNotesToDisplay(notesArray.slice(startIndex, endIndex));
+    // }, [currentPage]);
+
+    // useEffect(() => {
+    //     console.log("user verified 3");
+    //     var notes = processStringNotesToArray(task.task_notes);
+    //     setTaskNotes(notes);
+    //     setHeaderString(geHeaderString());
+    //     setButtonString(getButtonString());
+    //     console.log(isLoading);
+    // }, [task]);
+
+    if (isLoading) {
+        return <Loading />;
     }
 
     return (
@@ -281,7 +365,7 @@ export default function EditTask() {
 
                 <div>
                     <label htmlFor="plans">Plan:</label>
-                    {task.task_state === "open" || task.task_state === "done" ? (
+                    {(task.task_state === "open" || task.task_state === "done") && action === "demote" ? (
                         <select id="plans" value={selectedPlan} onChange={handleSelectedPlan} className="form-control" disabled={(appState.userGroups.includes(application.app_permit_open) && task.task_state === "open") || (appState.userGroups.includes(application.app_permit_done) && task.task_state === "done")}>
                             <option value=""></option>
                             {plans.map((plan) => (
@@ -295,7 +379,7 @@ export default function EditTask() {
                     )}
                 </div>
                 <div>
-                    <table>
+                    {/* <table>
                         <thead>
                             <tr>
                                 <th>Content</th>
@@ -320,7 +404,48 @@ export default function EditTask() {
                                 <></>
                             )}
                         </tbody>
-                    </table>
+                    </table> */}
+                    <div className="details-header">Comments:</div>
+                    <div className="notes-container">
+                        {console.log("tasknotes", notesToDisplay)}
+                        {task.task_notes ? (
+                            notesToDisplay.map((note) => {
+                                return (
+                                    <div key={task.task_id} className={note.author === "system" ? "system-note" : ""}>
+                                        <div className="task-note-top">
+                                            <div className="task-note-top-content" id="note-author">
+                                                {note.author}
+                                            </div>
+                                            <div className="task-note-top-content" id="note-state">
+                                                [ {note.state} ]
+                                            </div>
+                                            <div className="task-note-top-content" id="note-datetime">
+                                                {note.createdate}
+                                            </div>
+                                        </div>
+                                        <div className="task-note-content">{note.content}</div>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <>No Notes</>
+                        )}
+                    </div>
+                    <div className="pagination-container">
+                        {pagination.map((number) => {
+                            return (
+                                <p
+                                    onClick={() => {
+                                        handlePageChange(number);
+                                    }}
+                                    className={currentPage === number ? "page-number current-page" : "page-number"}
+                                    key={number}
+                                >
+                                    {number}
+                                </p>
+                            );
+                        })}
+                    </div>
                     {noteInput == false ? <button onClick={addNoteInput}>Add Note</button> : <></>}
                     <div style={{ display: "flex" }}>
                         {noteInput == true ? <img src="/images/deletebutton.jpg" alt="Button Image" onClick={addNoteInput} style={{ width: "30px", height: "30px" }} /> : <></>}
@@ -333,7 +458,7 @@ export default function EditTask() {
                     <button className="cancel-button" onClick={handleCancelButton}>
                         Cancel
                     </button>
-                    
+
                     <button type="submit" className="submit-button" onClick={handleSubmitButton}>
                         {buttonString}
                     </button>

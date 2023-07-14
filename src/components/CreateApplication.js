@@ -80,7 +80,7 @@ export default function CreateApplication() {
             verification: {
                 username: "admin",
                 isEndPoint: false,
-                userGroupsPermitted: [],
+                userGroupsPermitted: ["project lead"],
             },
         };
         console.log(data);

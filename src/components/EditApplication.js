@@ -27,7 +27,7 @@ export default function EditApplication() {
     useEffect(() => {
         let isMounted = true;
         axios
-            .post(`http://localhost:8080/application/${appAcronym}`, { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: [] } }, { withCredentials: true })
+            .post(`http://localhost:8080/application/${appAcronym}`, { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["project lead"] } }, { withCredentials: true })
             .then((res) => {
                 if (isMounted) {
                     const applicationData = res.data;
@@ -53,7 +53,7 @@ export default function EditApplication() {
     useEffect(() => {
         let isMounted = true;
         axios
-            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: [] } }, { withCredentials: true })
+            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["project lead"] } }, { withCredentials: true })
             .then((res) => {
                 if (isMounted) {
                     setUserGroupsAvailable(res.data);

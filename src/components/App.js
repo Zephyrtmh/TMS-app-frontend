@@ -100,7 +100,6 @@ function App() {
                 draft.username = data.username;
                 draft.active = data.active;
                 data.userGroups.forEach((userGroup) => {
-                    console.log(userGroup);
                     draft.userGroups.push(userGroup);
                 });
                 return;

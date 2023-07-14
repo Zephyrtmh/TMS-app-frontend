@@ -10,7 +10,9 @@ body {
     background-color: #fff9a5;
     color: #b48b7d;
     padding: 20px 30px;
+    /* padding-right: 100px; */
     margin: 0;
+    /* width: 100vw; */
 }
 
 .navbar-title {

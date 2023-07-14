@@ -86,7 +86,7 @@ export default function CreatePlan() {
     return (
         <div className="edit-task-for-container">
             <form onSubmit={handleCreateFormSubmit}>
-                <h1></h1>
+                <h1>Create Plan</h1>
                 <div className="form-group">
                     <label htmlFor="planname">Plan MVP Name:</label>
                     <input type="text" id="planname" value={planMvpName} onChange={handlePlanMvpNameChange} className="form-control" required />
