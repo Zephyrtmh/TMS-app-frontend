@@ -365,8 +365,8 @@ export default function EditTask() {
 
                 <div>
                     <label htmlFor="plans">Plan:</label>
-                    {(task.task_state === "open" || task.task_state === "done") && action === "demote" ? (
-                        <select id="plans" value={selectedPlan} onChange={handleSelectedPlan} className="form-control" disabled={(appState.userGroups.includes(application.app_permit_open) && task.task_state === "open") || (appState.userGroups.includes(application.app_permit_done) && task.task_state === "done")}>
+                    {(task.task_state === "open" && action !== "demote") || (task.task_state === "done" && action === "demote") ? (
+                        <select id="plans" value={selectedPlan} onChange={handleSelectedPlan} className="form-control">
                             <option value=""></option>
                             {plans.map((plan) => (
                                 <option key={plan.plan_mvp_name} value={plan.plan_mvp_name}>

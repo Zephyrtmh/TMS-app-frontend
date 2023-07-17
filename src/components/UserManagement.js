@@ -64,7 +64,7 @@ function UserManagement() {
     useEffect(() => {
         setIsLoading(true);
         axios
-            .post("http://localhost:8080/user/all", { verification: { username: appState.username, userGroupsPermitted: ["admin"], isEndPoint: false } }, { withCredentials: true })
+            .post("http://localhost:8080/user/all", { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true })
             .then((res) => {
                 setUsers(res.data);
             })
@@ -76,7 +76,7 @@ function UserManagement() {
             });
 
         axios
-            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["admin"] } }, { withCredentials: true })
+            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: [] } }, { withCredentials: true })
             .then((res) => {
                 res.data.push({ userGroupName: "" });
                 setUserGroups(res.data);
@@ -116,7 +116,7 @@ function UserManagement() {
     const handleCreateGroup = (e) => {
         e.preventDefault();
         axios
-            .post("http://localhost:8080/group/create", { userGroup: userGroupToAdd, verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["admin"] } }, { withCredentials: true })
+            .post("http://localhost:8080/group/create", { userGroup: userGroupToAdd, verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: [] } }, { withCredentials: true })
             .then((res) => {
                 if (res.data) {
                     if (res.data.success === false) {

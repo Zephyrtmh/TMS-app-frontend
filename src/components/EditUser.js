@@ -76,7 +76,7 @@ function EditUser() {
         setIsLoading(false);
         let isMounted = true;
         axios
-            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["admin"] } }, { withCredentials: true })
+            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: [] } }, { withCredentials: true })
             .then((res) => {
                 console.log(res.data);
                 if (isMounted) {
@@ -91,7 +91,7 @@ function EditUser() {
             });
 
         axios
-            .post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true })
+            .post(`http://localhost:8080/user/${username}`, { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: [] } }, { withCredentials: true })
             .then((res) => {
                 // setUserDetails(res.data);
                 setUserEmail(res.data.email);
@@ -155,7 +155,7 @@ function EditUser() {
             verification: {
                 username: appState.username,
                 isEndPoint: false,
-                userGroupsPermitted: ["admin"],
+                userGroupsPermitted: [],
             },
         };
         console.log(data);

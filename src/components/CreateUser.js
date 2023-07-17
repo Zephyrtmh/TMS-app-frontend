@@ -81,7 +81,7 @@ function CreateUser() {
     useEffect(() => {
         let isMounted = true;
         axios
-            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: ["admin"] } }, { withCredentials: true })
+            .post("http://localhost:8080/group/all", { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: [] } }, { withCredentials: true })
             .then((res) => {
                 if (isMounted) {
                     setUserGroupsAvailable(res.data);
@@ -137,7 +137,7 @@ function CreateUser() {
             verification: {
                 username: appState.username, // current user's username
                 isEndPoint: false,
-                userGroupsPermitted: ["admin"],
+                userGroupsPermitted: [],
             },
         };
         console.log(data);

@@ -8,6 +8,7 @@ import Loading from "./Loading";
 
 import "../styles/EditForm.css";
 import "../styles/styles.css";
+import DispatchContext from "../DispatchContext";
 
 function Profile() {
     const [userGroupsAvailable, setUserGroupsAvailable] = useState([]);
@@ -24,6 +25,13 @@ function Profile() {
     const [errMessage, setErrMessage] = useState("");
 
     const [isLoading, setIsLoading] = useState(true);
+
+    const appDispatch = useContext(DispatchContext);
+    const appState = useContext(AppStateContext);
+
+    const navigate = useNavigate();
+
+    const { username } = useParams();
 
     useEffect(() => {
         let isMounted = true;
@@ -72,27 +80,37 @@ function Profile() {
         // } catch (err) {
         //     console.log(err.status);
         // }
-
-        axios.post(`http://localhost:8080/user/${username}`, { username: username }, { withCredentials: true }).then((res) => {
-            // setUserDetails(res.data);
-            setUserEmail(res.data.email);
-            setUserAccStatus(res.data.active);
-            if (res.data.active === "") {
-                setUserAccStatus("active");
-            }
-            console.log("userGroups");
-            console.log(res.data);
-            console.log(res.data.userGroups);
-            if (isMounted) {
-                setUserGroupForUser(res.data.userGroups);
-                setUserGroupToChangeTo(res.data.userGroups);
-            }
-        });
-        // .catch((err) => {
-        //     if (err.response.status === 401) {
-        //         navigate("/login");
-        //     }
-        // });
+        console.log("trying to access: " + username, "as: ", appState.username);
+        axios
+            .post(`http://localhost:8080/user/${username}`, { verification: { username: appState.username, isEndPoint: false, userGroupsPermitted: [] } }, { withCredentials: true })
+            .then((res) => {
+                // setUserDetails(res.data);
+                setUserEmail(res.data.email);
+                setUserAccStatus(res.data.active);
+                if (res.data.active === "") {
+                    setUserAccStatus("active");
+                }
+                console.log("userGroups");
+                console.log(res.data);
+                console.log(res.data.userGroups);
+                if (isMounted) {
+                    setUserGroupForUser(res.data.userGroups);
+                    setUserGroupToChangeTo(res.data.userGroups);
+                }
+            })
+            .catch((err) => {
+                if (err.response.status === 401) {
+                    axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                        if (res.status === 200) {
+                            console.log(res.status);
+                            appDispatch({ type: "logout" });
+                            return navigate("/login");
+                        } else if (res.status !== 200) {
+                            return navigate("/login");
+                        }
+                    });
+                }
+            });
 
         return () => {
             isMounted = false;
@@ -156,12 +174,6 @@ function Profile() {
                 setUserPassword("");
             });
     };
-
-    const navigate = useNavigate();
-
-    const { username } = useParams();
-
-    const appState = useContext(AppStateContext);
 
     return (
         <div className="edit-form-container">
