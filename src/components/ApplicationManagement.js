@@ -7,7 +7,7 @@ import DispatchContext from "../DispatchContext";
 
 import Loading from "./Loading";
 
-import "../styles/UserManagement.css";
+// import "../styles/UserManagement.css";
 import "../styles/applicationmanagement.css";
 
 function ApplicationManagement() {
@@ -116,15 +116,10 @@ function ApplicationManagement() {
                         <thead>
                             <tr>
                                 <th>app_acronym</th>
-                                <th>app_description</th>
+                                <th style={{ maxWidth: "400px", maxHeight: "400px" }}>app_description</th>
                                 <th>app_Rnumber</th>
                                 <th>app_startdate</th>
                                 <th>app_enddate</th>
-                                <th>app_permit_create</th>
-                                <th>app_permit_open</th>
-                                <th>app_permit_todo</th>
-                                <th>app_permit_doing</th>
-                                <th>app_permit_done</th>
                                 <th>actions</th>
                             </tr>
                         </thead>
@@ -136,11 +131,6 @@ function ApplicationManagement() {
                                     <td>{application.app_Rnumber}</td>
                                     <td>{application.app_startdate.substr(0, 10)}</td>
                                     <td>{application.app_enddate.substr(0, 10)}</td>
-                                    <td>{application.app_permit_create}</td>
-                                    <td>{application.app_permit_open}</td>
-                                    <td>{application.app_permit_todo}</td>
-                                    <td>{application.app_permit_doing}</td>
-                                    <td>{application.app_permit_done}</td>
                                     <td>
                                         <div className="edit-view-button-container">
                                             <button className="edit-user button" onClick={() => handleNavigateToViewApplication(application)}>
