@@ -316,7 +316,7 @@ function ViewApplication() {
                                 ) : (
                                     <td className="application-board-table-cell">
                                         <div className="row-container">
-                                            {openTasks.map((task) => {
+                                            {toDoTasks.map((task) => {
                                                 return <TaskCard key={task.task_id} task={task} application={application} appState={appState} disabled={true} checkIfSomethingIsExpanded={checkIfSomethingIsExpanded} setSomethingIsExpanded={setSomethingIsExpanded} />;
                                             })}
                                         </div>

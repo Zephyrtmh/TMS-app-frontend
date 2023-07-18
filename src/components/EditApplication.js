@@ -3,6 +3,7 @@ import axios from "axios";
 import AppStateContext from "../AppStateContext";
 import DispatchContext from "../DispatchContext";
 import { useParams, useNavigate } from "react-router-dom";
+import Loading from "./Loading";
 
 export default function EditApplication() {
     const [application, setApplication] = useState(null);
@@ -14,6 +15,7 @@ export default function EditApplication() {
     const [appPermitDoing, setAppPermitDoing] = useState("");
     const [appPermitDone, setAppPermitDone] = useState("");
     const [isError, setIsError] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [successfullyUpdated, setSuccessfullyUpdated] = useState(false);
     const [userGroupsAvailable, setUserGroupsAvailable] = useState([]);
 
@@ -23,6 +25,57 @@ export default function EditApplication() {
     const navigate = useNavigate();
 
     const { appAcronym } = useParams();
+
+    useEffect(() => {
+        async function syncBackend() {
+            //only allow admin users to access
+            await axios
+                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["project lead"], isEndPoint: true } }, { withCredentials: true })
+                .then((verified) => {
+                    if (verified) {
+                        if (verified.data.verified === false) {
+                            setIsLoading(false);
+                            return false;
+                        } else {
+                            setIsLoading(false);
+                            return true;
+                        }
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    if (err.response.data.error.statusCode === 401) {
+                        axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                            if (res.status === 200) {
+                                console.log(res.status);
+                                appDispatch({ type: "logout" });
+                                return navigate("/login");
+                            } else if (res.status !== 200) {
+                                return navigate("/login");
+                            }
+                        });
+                        return false;
+                    } else {
+                        let errorMessage = err.response.data.errorMessage;
+                        setErrMessage(errorMessage);
+                        setIsError(true);
+                        setSuccessfullyCreated(false);
+                    }
+                });
+        }
+
+        if (syncBackend() === false) {
+            axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                if (res.status === 200) {
+                    console.log(res.status);
+                    appDispatch({ type: "logout" });
+                    return navigate("/login");
+                } else if (res.status !== 200) {
+                    return navigate("/login");
+                }
+            });
+        }
+    }, []);
 
     useEffect(() => {
         let isMounted = true;
@@ -128,8 +181,8 @@ export default function EditApplication() {
         return navigate("/applicationmanagement");
     };
 
-    if (!application) {
-        return <div>Loading...</div>;
+    if (!application || isLoading) {
+        return <Loading />;
     }
 
     return (
@@ -153,7 +206,7 @@ export default function EditApplication() {
 
                 <div className="form-group">
                     <label htmlFor="appEndDate">End Date:</label>
-                    <input type="date" id="appEndDate" value={appEndDate.substring(0, 10)} onChange={handleAppEndDateChange} className="form-control" required />
+                    <input type="date" id="appEndDate" min={application.app_startdate.substring(0, 10)} value={appEndDate.substring(0, 10)} onChange={handleAppEndDateChange} className="form-control" required />
                 </div>
 
                 <div className="form-group">

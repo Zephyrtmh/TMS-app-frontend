@@ -15,6 +15,8 @@ export default function CreateApplication() {
     const [appPermitDoing, setAppPermitDoing] = useState("");
     const [appPermitDone, setAppPermitDone] = useState("");
     const [isError, setIsError] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [errMessage, setErrMessage] = useState("");
     const [successfullyCreated, setSuccessfullyCreated] = useState(false);
     const [appPermitCreate, setAppPermitCreate] = useState("");
     const [userGroupsAvailable, setUserGroupsAvailable] = useState([]);
@@ -103,14 +105,68 @@ export default function CreateApplication() {
                 setAppPermitCreate("");
             })
             .catch((err) => {
-                console.log(err);
+                let errorMessage = err.response.data.errorMessage;
+                setErrMessage(errorMessage);
                 setIsError(true);
+                setSuccessfullyCreated(false);
             });
     };
 
     const handleCancelForm = () => {
         return navigate("/applicationmanagement");
     };
+
+    //verification
+    useEffect(() => {
+        async function syncBackend() {
+            //only allow admin users to access
+            await axios
+                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: ["project lead"], isEndPoint: true } }, { withCredentials: true })
+                .then((verified) => {
+                    if (verified) {
+                        if (verified.data.verified === false) {
+                            setIsLoading(false);
+                            return false;
+                        } else {
+                            setIsLoading(false);
+                            return true;
+                        }
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    if (err.response.data.error.statusCode === 401) {
+                        axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                            if (res.status === 200) {
+                                console.log(res.status);
+                                appDispatch({ type: "logout" });
+                                return navigate("/login");
+                            } else if (res.status !== 200) {
+                                return navigate("/login");
+                            }
+                        });
+                        return false;
+                    } else {
+                        let errorMessage = err.response.data.errorMessage;
+                        setErrMessage(errorMessage);
+                        setIsError(true);
+                        setSuccessfullyCreated(false);
+                    }
+                });
+        }
+
+        if (syncBackend() === false) {
+            axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                if (res.status === 200) {
+                    console.log(res.status);
+                    appDispatch({ type: "logout" });
+                    return navigate("/login");
+                } else if (res.status !== 200) {
+                    return navigate("/login");
+                }
+            });
+        }
+    }, []);
 
     useEffect(() => {
         let isMounted = true;
@@ -227,7 +283,7 @@ export default function CreateApplication() {
                 </div>
 
                 {/* Error message */}
-                {isError ? <div className="error-msg">An error occurred while creating the application.</div> : null}
+                {isError ? <div className="error-msg">{errMessage}</div> : null}
 
                 {/* Success message */}
                 {successfullyCreated ? <div className="success-msg">Application created successfully.</div> : null}

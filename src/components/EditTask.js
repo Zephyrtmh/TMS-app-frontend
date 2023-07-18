@@ -96,7 +96,17 @@ export default function EditTask() {
 
     const retrieveTask = async () => {
         try {
-            var task_ = await axios.post(`http://localhost:8080/task/${taskId}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
+            var task_ = axios.post(`http://localhost:8080/task/${taskId}?action=${action}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true }).catch((err) => {
+                axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                    if (res.status === 200) {
+                        console.log(res.status);
+                        appDispatch({ type: "logout" });
+                        return navigate("/login");
+                    } else if (res.status !== 200) {
+                        return navigate("/login");
+                    }
+                });
+            });
             taskGlobal = task_;
             var application = await axios.post(`http://localhost:8080/application/${task_.data.task_app_acronym}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true });
             setApplication(application);
@@ -368,7 +378,7 @@ export default function EditTask() {
 
                 <div className="form-group">
                     <label htmlFor="description">Description:</label>
-                    <input type="email" id="description" readOnly value={task.task_description} onChange={() => {}} className="form-control" />
+                    <input type="text" id="description" readOnly value={task.task_description} onChange={() => {}} className="form-control" />
                 </div>
 
                 <div>
