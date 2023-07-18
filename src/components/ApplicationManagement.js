@@ -127,7 +127,9 @@ function ApplicationManagement() {
                             {applications.map((application, index) => (
                                 <tr key={index}>
                                     <td>{application.app_acronym}</td>
-                                    <td>{application.app_description}</td>
+                                    <td>
+                                        <div id="application-description">{application.app_description}</div>
+                                    </td>
                                     <td>{application.app_Rnumber}</td>
                                     <td>{application.app_startdate.substr(0, 10)}</td>
                                     <td>{application.app_enddate.substr(0, 10)}</td>

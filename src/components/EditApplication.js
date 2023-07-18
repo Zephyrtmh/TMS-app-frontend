@@ -223,7 +223,7 @@ export default function EditApplication() {
                 {successfullyUpdated ? <div className="success-msg">Application updated successfully.</div> : null}
 
                 <div className="button-group">
-                    <button type="cancel" onClick={handleCancelForm} className="cancel-button">
+                    <button onClick={handleCancelForm} type="button" className="cancel-button">
                         Cancel
                     </button>
                     <button type="submit" className="submit-button">

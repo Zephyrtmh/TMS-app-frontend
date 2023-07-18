@@ -36,6 +36,8 @@ export default function EditTask() {
     const [taskNotes, setTaskNotes] = useState("");
 
     const [isError, setIsError] = useState(false);
+    const [errMessage, setErrMessage] = useState("");
+    const [successfullyCreated, setSuccessfullyCreated] = useState("");
 
     const navigate = useNavigate();
 
@@ -209,10 +211,16 @@ export default function EditTask() {
                     }
                 })
                 .catch((err) => {
-                    console.log(err.message);
+                    let errorMessage = err.response.data.errorMessage;
+                    setErrMessage(errorMessage);
+                    setIsError(true);
+                    setSuccessfullyCreated(false);
                 });
         } catch (err) {
-            console.log(err);
+            let errorMessage = err.response.data.errorMessage;
+            setErrMessage(errorMessage);
+            setIsError(true);
+            setSuccessfullyCreated(false);
         }
     };
 
@@ -448,14 +456,22 @@ export default function EditTask() {
                     </div>
                     {noteInput == false ? <button onClick={addNoteInput}>Add Note</button> : <></>}
                     <div style={{ display: "flex" }}>
-                        {noteInput == true ? <img src="/images/deletebutton.jpg" alt="Button Image" onClick={addNoteInput} style={{ width: "30px", height: "30px" }} /> : <></>}
+                        {noteInput == true ? <img src="/images/deletebutton.jpg" alt="Button Image" onClick={addNoteInput} style={{ width: "25px", height: "25px", padding: "6px" }} /> : <></>}
+                        {/* {noteInput == true ? (
+                            <div onClick={addNoteInput} style={{ fontSize: "25px", padding: "6px" }}>
+                                x
+                            </div>
+                        ) : (
+                            <></>
+                        )} */}
+
                         {noteInput == true ? <input placeholder="Some note" className="form-control" onChange={handleNoteOnChange} value={newNote}></input> : <></>}
                     </div>
                 </div>
                 {/* Error message */}
                 {isError ? <div className="error-msg">{errMessage}</div> : <div></div>}
                 <div className="button-group">
-                    <button className="cancel-button" onClick={handleCancelButton}>
+                    <button className="cancel-button" type="button" onClick={handleCancelButton}>
                         Cancel
                     </button>
 

@@ -143,7 +143,7 @@ export default function CreateApplication() {
 
                 <div className="form-group">
                     <label htmlFor="appRNumber">Application R Number:</label>
-                    <input type="number" id="appRNumber" value={appRNumber} onChange={handleAppRNumberChange} className="form-control" required />
+                    <input type="number" id="appRNumber" max="200" value={appRNumber} onChange={handleAppRNumberChange} className="form-control" required />
                 </div>
 
                 <div className="form-group">
@@ -233,7 +233,7 @@ export default function CreateApplication() {
                 {successfullyCreated ? <div className="success-msg">Application created successfully.</div> : null}
 
                 <div className="button-group">
-                    <button type="cancel" onClick={handleCancelForm} className="cancel-button">
+                    <button type="button" onClick={handleCancelForm} className="cancel-button">
                         Cancel
                     </button>
                     <button type="submit" className="submit-button">

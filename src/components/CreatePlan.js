@@ -23,9 +23,11 @@ export default function CreatePlan() {
 
     const [isError, setIsError] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [errMessage, setErrMessage] = useState("");
     const [successfullyCreated, setSuccessfullyCreated] = useState(false);
 
     const appState = useContext(AppStateContext);
+    const appDispatch = useContext(DispatchStateContext);
 
     //verification
     useEffect(() => {
@@ -110,11 +112,15 @@ export default function CreatePlan() {
                 setSuccessfullyCreated(true);
             })
             .catch((err) => {
-                console.log(err);
+                console.log("err", err);
+                setIsError(true);
+                setSuccessfullyCreated(false);
+                setErrMessage(err.response.data.errorMessage);
             });
     };
 
-    const handleCancelButton = () => {
+    const handleCancelButton = (e) => {
+        e.preventDefault();
         return navigate(`/application/${application.app_acronym}`);
     };
 
@@ -153,10 +159,10 @@ export default function CreatePlan() {
                 {/* success message */}
                 {successfullyCreated ? <div className="success-msg">Successfully created Plan. Create another one.</div> : <div></div>}
                 <div className="button-group">
-                    <button className="cancel-button" onClick={handleCancelButton}>
+                    <button className="cancel-button" type="button" onClick={handleCancelButton}>
                         Cancel
                     </button>
-                    <button type="submit" className="submit-button" onSubmit={handleCreateFormSubmit}>
+                    <button type="submit" className="submit-button">
                         Submit
                     </button>
                 </div>

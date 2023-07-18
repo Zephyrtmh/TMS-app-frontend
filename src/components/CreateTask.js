@@ -211,7 +211,7 @@ export default function CreateTask() {
                 {successfullyCreated ? <div className="success-msg">Successfully created Plan. Create another one.</div> : <div></div>}
 
                 <div className="button-group">
-                    <button className="cancel-button" onClick={handleCancelButton}>
+                    <button className="cancel-button" type="button" onClick={handleCancelButton}>
                         Cancel
                     </button>
                     <button type="submit" className="submit-button">

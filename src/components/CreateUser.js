@@ -226,18 +226,10 @@ function CreateUser() {
                 {/* success message */}
                 {successfullyCreated ? <div className="success-msg">Successfully created User. Create another one.</div> : <div></div>}
                 <div className="button-group">
-                    <button className="cancel-button" onClick={handleCancelButton}>
+                    <button className="cancel-button" type="button" onClick={handleCancelButton}>
                         Cancel
                     </button>
-                    <button
-                        type="submit"
-                        className="submit-button"
-                        onKeyDown={(event) => {
-                            if (event.key === "Enter") {
-                                handleCreateFormSubmit();
-                            }
-                        }}
-                    >
+                    <button type="submit" className="submit-button">
                         Submit
                     </button>
                 </div>
