@@ -45,6 +45,7 @@
     max-height: 400px;
     padding-right: 10px;
     overflow-y: auto;
+    overflow-x: wrap;
 }
 
 .application-table .edit-view-button-container {
