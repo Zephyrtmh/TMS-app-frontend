@@ -43,6 +43,63 @@ export default function EditTask() {
 
     var taskGlobal;
 
+    //verify user permission
+    useEffect(() => {
+        console.log("user verified 1");
+        async function syncBackend() {
+            //only allow users to access
+            var applicationPermission = await retrieveTask();
+            axios
+                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: applicationPermission ? [applicationPermission] : [], isEndPoint: true } }, { withCredentials: true })
+                .then((verified) => {
+                    if (verified.data.verified === false) {
+                        axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                            if (res.status === 200) {
+                                console.log(res.status);
+                                appDispatch({ type: "logout" });
+                                return navigate("/login");
+                            } else if (res.status !== 200) {
+                                return navigate("/login");
+                            }
+                        });
+                        return false;
+                    } else {
+                        // var notes = processStringNotesToArray(task.task_notes);
+                        // setTaskNotes(notes);
+                        // setHeaderString(geHeaderString());
+                        // setButtonString(getButtonString());
+
+                        setIsLoading(false);
+                        console.log("user verified 2");
+                        return true;
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    if (err.response.data.error.statusCode === 401) {
+                        axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
+                            if (res.status === 200) {
+                                console.log(res.status);
+                                appDispatch({ type: "logout" });
+                                return navigate("/login");
+                            } else if (res.status !== 200) {
+                                return navigate("/login");
+                            }
+                        });
+                    } else {
+                        let errorMessage = err.response.data.errorMessage;
+                        setErrMessage(errorMessage);
+                        setIsError(true);
+                        setSuccessfullyEdit(false);
+                    }
+                });
+        }
+
+        if (syncBackend() === false) {
+            navigate("/home");
+        }
+    }, []);
+
     const getButtonString = (taskData) => {
         var taskState = taskData.task_state;
         if (action === "demote") {
@@ -96,7 +153,7 @@ export default function EditTask() {
 
     const retrieveTask = async () => {
         try {
-            var task_ = axios.post(`http://localhost:8080/task/${taskId}?action=${action}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true }).catch((err) => {
+            var task_ = await axios.post(`http://localhost:8080/task/${taskId}?action=${action}`, { verification: { username: appState.username, userGroupsPermitted: [], isEndPoint: false } }, { withCredentials: true }).catch((err) => {
                 axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
                     if (res.status === 200) {
                         console.log(res.status);
@@ -250,63 +307,6 @@ export default function EditTask() {
         setCurrentPage(number);
     };
 
-    //verify user permission
-    useEffect(() => {
-        console.log("user verified 1");
-        async function syncBackend() {
-            //only allow users to access
-            var applicationPermission = await retrieveTask();
-            axios
-                .post("http://localhost:8080/verifyuser", { verification: { username: appState.username, userGroupsPermitted: [applicationPermission], isEndPoint: true } }, { withCredentials: true })
-                .then((verified) => {
-                    if (verified.data.verified === false) {
-                        axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
-                            if (res.status === 200) {
-                                console.log(res.status);
-                                appDispatch({ type: "logout" });
-                                return navigate("/login");
-                            } else if (res.status !== 200) {
-                                return navigate("/login");
-                            }
-                        });
-                        return false;
-                    } else {
-                        // var notes = processStringNotesToArray(task.task_notes);
-                        // setTaskNotes(notes);
-                        // setHeaderString(geHeaderString());
-                        // setButtonString(getButtonString());
-
-                        setIsLoading(false);
-                        console.log("user verified 2");
-                        return true;
-                    }
-                })
-                .catch((err) => {
-                    console.log(err);
-                    if (err.response.data.error.statusCode === 401) {
-                        axios.post("http://localhost:8080/logout", {}, { withCredentials: true }).then((res) => {
-                            if (res.status === 200) {
-                                console.log(res.status);
-                                appDispatch({ type: "logout" });
-                                return navigate("/login");
-                            } else if (res.status !== 200) {
-                                return navigate("/login");
-                            }
-                        });
-                    } else {
-                        let errorMessage = err.response.data.errorMessage;
-                        setErrMessage(errorMessage);
-                        setIsError(true);
-                        setSuccessfullyEdit(false);
-                    }
-                });
-        }
-
-        if (syncBackend() === false) {
-            navigate("/home");
-        }
-    }, []);
-
     const [currentPage, setCurrentPage] = useState(1);
     const [notes, setNotes] = useState([]);
     const [pagination, setPagination] = useState(0);
@@ -383,7 +383,7 @@ export default function EditTask() {
 
                 <div>
                     <label htmlFor="plans">Plan:</label>
-                    {(task.task_state === "open" && action !== "demote") || (task.task_state === "done" && action === "demote") ? (
+                    {(task.task_state === "open" && action !== "demote") || task.task_state === "done" ? (
                         <select id="plans" value={selectedPlan} onChange={handleSelectedPlan} className="form-control">
                             <option value=""></option>
                             {plans.map((plan) => (
